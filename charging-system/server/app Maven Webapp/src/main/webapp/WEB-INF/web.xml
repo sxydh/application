@@ -1,0 +1,109 @@
+<!DOCTYPE web-app PUBLIC
+ "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+ "http://java.sun.com/dtd/web-app_2_3.dtd" >
+<web-app id="WebApp_1561517873466">
+    <display-name>Archetype Created Web Application</display-name>
+    <!-- Spring -->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath:spring-config.xml
+        </param-value>
+    </context-param>
+    <context-param>
+        <param-name>log4jConfigLocation</param-name>
+        <param-value>classpath:log4j.properties</param-value>
+    </context-param>
+    <context-param>
+        <param-name>log4jRefreshInterval</param-name>
+        <param-value>600000</param-value>
+    </context-param>
+    <context-param>
+        <param-name>webAppRootKey</param-name>
+        <param-value>javass.webapp.root</param-value>
+    </context-param>
+    <error-page>
+        <error-code>404</error-code>
+        <location>/WEB-INF/error/404.jsp</location>
+    </error-page>
+    <filter>
+        <filter-name>corsFilter</filter-name>
+        <filter-class>bhe.net.cn.filter.CORSFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>corsFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <filter>
+        <filter-name>preprocessFilter</filter-name>
+        <filter-class>bhe.net.cn.filter.PreprocessFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>preprocessFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <filter>
+        <filter-name>openSessionInViewFilter</filter-name>
+        <filter-class>org.springframework.orm.hibernate4.support.OpenSessionInViewFilter
+        </filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>openSessionInViewFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <!-- Spring Session -->
+    <filter>
+        <filter-name>springSessionRepositoryFilter</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>springSessionRepositoryFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>ERROR</dispatcher>
+    </filter-mapping>
+    <!-- Encoding -->
+    <filter>
+        <filter-name>setCharacterEncoding</filter-name>
+        <filter-class>org.springframework.web.filter.CharacterEncodingFilter
+        </filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+        <init-param>
+            <param-name>forceEncoding</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>setCharacterEncoding</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <!-- Spring -->
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener
+        </listener-class>
+    </listener>
+    <listener>
+        <listener-class>org.springframework.web.util.Log4jConfigListener
+        </listener-class>
+    </listener>
+    <!-- SpringMVC -->
+    <servlet>
+        <servlet-name>springmvc</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet
+        </servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath:spring-servlet.xml</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>springmvc</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+    <welcome-file-list>
+        <welcome-file>/index</welcome-file>
+    </welcome-file-list>
+</web-app>

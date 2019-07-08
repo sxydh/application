@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>CORS Test</title>
+</head>
+<body>
+</body>
+<script
+    type="text/javascript"
+    src="./jquery-3.3.1.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $.ajax({
+            url : "http://localhost:8080/charging-system/app/user/register",
+            // url : "http://localhost:7070/operate/login",
+            /* url : "http://localhost:8080/mgr/tree/node/list", */
+            /* url : "http://localhost:6600/mgr/quit", */
+            /* url : "http://localhost:9090/api/operate/login", */
+            /* url : "http://localhost:8080/redis_session", */
+            type : "POST",
+            /* data : '{"phone": "12345654322", "password": "123456", "type": 2}', */
+            /* data : '{"userid": 22}', */
+            /* data : '{"ndid": 1, "type": 1, "userid": 22}', */
+            data: '{"username":"15186942525","pwd":"670b14728ad9902aecba32e22fa4f6bd"}',
+            async : true,
+            contentType : "application/json",
+            xhrFields : {
+                withCredentials : true
+            },
+            success : function(suc) {
+                console.log(suc);
+            },
+            error : function(error) {
+                console.log(error);
+            }
+        })
+    });
+</script>
+</html>
