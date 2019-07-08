@@ -1,0 +1,36 @@
+dispatch:
+    session:
+        time: 3600
+    tokenHeader: authorization
+logging:
+    level:
+        bhe.net.cn: debug
+mybatis:
+    configuration:
+        jdbc-type-for-null: 'null'
+    mapper-locations: classpath*:mapper/*.xml, classpath*:mapper/**/*.xml
+server:
+    port: 8080
+    servlet:
+        session:
+            timeout: 7200
+spring:
+    datasource:
+        password: ******
+        type: com.alibaba.druid.pool.DruidDataSource
+        url: jdbc:mysql://******:3306/******
+        username: ******
+    devtools:
+        restart:
+            enabled: true
+    redis:
+        host: ******
+        jedis:
+            pool:
+                max-active: 200
+                max-idle: 50
+                max-wait: -1
+                min-idle: 0
+        password: ******
+        port: 6379
+        timeout: 1000000
