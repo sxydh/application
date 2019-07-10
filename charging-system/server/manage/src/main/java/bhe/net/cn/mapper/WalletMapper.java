@@ -41,7 +41,7 @@ public interface WalletMapper {
             + " ORDER BY num, id "
             //
             + " LIMIT #{offset}, #{limit} </script> " })
-    public List<Map<String, Object>> walletList(Map<String, Object> rq_u);
+    public List<Map<String, Object>> walletList(Map<String, Object> rq_w);
 
     @Select({ " <script> SELECT COUNT(0) FROM ( "
             //
@@ -72,7 +72,7 @@ public interface WalletMapper {
             + " ) rt WHERE rnum = 1 "
             //
             + " ) c </script> " })
-    public Integer walletCount(Map<String, Object> rq_u);
+    public int walletCount(Map<String, Object> rq_w);
 
     @Select({ " <script> "
             //
@@ -88,7 +88,7 @@ public interface WalletMapper {
             + " VALUES (#{id}, #{walletId}, #{type}, #{value}, #{status}, NOW(), NOW(), #{credit}, #{balance}, #{userId}) "
             //
             + " </script> " })
-    public int orderAdd(Map<String, Object> rq_u);
+    public int orderAdd(Map<String, Object> rq_w);
 
     @Update({ " <script> "
             //
@@ -101,7 +101,7 @@ public interface WalletMapper {
             + " WHERE id = #{id} "
             //
             + " </script> " })
-    public int walletUpdate(Map<String, Object> rq_u);
+    public int walletUpdate(Map<String, Object> rq_w);
 
     @Insert({ " <script> "
             //
@@ -110,7 +110,7 @@ public interface WalletMapper {
             + " VALUES (#{walletId}, #{userId}, NOW(), #{remark}) "
             //
             + " </script> " })
-    public int walletLogAdd(Map<String, Object> rq_u);
+    public int walletLogAdd(Map<String, Object> rq_w);
 
     @Select({ " <script> "
             //
@@ -140,7 +140,7 @@ public interface WalletMapper {
             + " ORDER BY wl.createtime DESC "
             //
             + " LIMIT #{offset}, #{limit} </script> " })
-    public List<Map<String, Object>> logList(Map<String, Object> rq_u);
+    public List<Map<String, Object>> logList(Map<String, Object> rq_w);
 
     @Select({ " <script> SELECT COUNT(0) FROM ( "
             //
@@ -159,7 +159,7 @@ public interface WalletMapper {
             + " <if test='remark!=null and remark!=\"\"'> AND wl.remark LIKE CONCAT('%', #{remark}, '%') </if> "
             //
             + " ) c </script> " })
-    public int logCount(Map<String, Object> rq_u);
+    public int logCount(Map<String, Object> rq_w);
 
     @Select({ " <script> "
             //
@@ -180,7 +180,7 @@ public interface WalletMapper {
             + " ORDER BY o.createtime DESC, o.id "
             //
             + " LIMIT #{offset}, #{limit} </script> " })
-    public List<Map<String, Object>> orderList(Map<String, Object> rq_u);
+    public List<Map<String, Object>> orderList(Map<String, Object> rq_w);
 
     @Select({ " <script> SELECT COUNT(0) FROM ( "
             //
@@ -199,6 +199,6 @@ public interface WalletMapper {
             + " <if test='type!=null'> AND o.type = #{type} </if> "
             //
             + " ) c </script> " })
-    public int orderCount(Map<String, Object> rq_u);
+    public int orderCount(Map<String, Object> rq_w);
 
 }

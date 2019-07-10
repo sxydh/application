@@ -17,6 +17,7 @@
         :height="listStyle.height"
         :style="{width: listStyle.width}"
         v-loading="walletPage.loading"
+        element-loading-background="rgba(0, 0, 0, 0)"
       >
         <el-table-column type="expand">
           <template slot-scope="scope">
@@ -136,7 +137,7 @@ export default {
       let walletPageData = this.takeWalletPageData();
 
       this.walletPage.loading = true;
-      if (!walletPageData.available) {
+      if (!walletPageData || !walletPageData.available) {
         this.walletPage.offset = this.walletPage.limit * --posit;
         let data = Object.assign({}, this.walletPage, this.search);
 

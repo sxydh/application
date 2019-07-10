@@ -8,9 +8,15 @@ const state = {
     wallet: null,
     auth: { flush: true },
     authorization: null,
+    walletPageData: null,
     walletPageData: null
 };
 const getters = {
+    takeWaterPageData: (state) => {
+        let result = state.waterPageData == null ? localStorage.getItem('waterPageData') : state.waterPageData;
+        console.log('store -> getters -> takeWaterPageData -> ' + result);
+        return JSON.parse(result);
+    },
     takeWalletPageData: (state) => {
         let result = state.walletPageData == null ? localStorage.getItem('walletPageData') : state.walletPageData;
         console.log('store -> getters -> takeWalletPageData -> ' + result);
@@ -38,6 +44,12 @@ const getters = {
     },
 };
 const mutations = {
+    updateWaterPageData(state, value) {
+        value = JSON.stringify(value);
+        console.log('store -> mutations -> updateWaterPageData -> ' + value);
+        state.waterPageData = value;
+        window.localStorage.setItem('waterPageData', value);
+    },
     updateWalletPageData(state, value) {
         value = JSON.stringify(value);
         console.log('store -> mutations -> updateWalletPageData -> ' + value);

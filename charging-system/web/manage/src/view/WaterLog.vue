@@ -1,7 +1,7 @@
 <template>
-  <div id="bhe_walletLog">
+  <div id="bhe_waterLog">
     <div id="bhe_search">
-      <el-button @click="toWallet()">Back</el-button>
+      <el-button @click="toWater()">Back</el-button>
       <el-date-picker
         v-model="search.date"
         type="daterange"
@@ -21,15 +21,15 @@
         style="margin-left: 30px; width: 200px;"
         clearable
       ></el-input>
-      <el-button type="primary" icon="el-icon-search" @click="synchronizeWalletLogList()"></el-button>
+      <el-button type="primary" icon="el-icon-search" @click="synchronizeWaterLogList()"></el-button>
     </div>
     <div style="height: 10px;" />
-    <div id="bhe_walletLogInfo">
+    <div id="bhe_waterLogInfo">
       <el-table
-        :data="walletLogList"
+        :data="waterLogList"
         :height="listStyle.height"
         :style="{width: listStyle.width}"
-        v-loading="walletLogPage.loading"
+        v-loading="waterLogPage.loading"
         element-loading-background="rgba(0, 0, 0, 0)"
       >
         <el-table-column prop="operator" label="Operator" sortable width="200"></el-table-column>
@@ -37,15 +37,15 @@
         <el-table-column prop="remark" label="Description" sortable></el-table-column>
       </el-table>
       <el-pagination
-        id="bhe_walletLogListPagination"
+        id="bhe_waterLogListPagination"
         :style="{margin:listStyle.pagination.margin}"
-        @size-change="walletLogHandleSizeChange"
-        @current-change="walletLogHandleCurrentChange"
-        :current-page="walletLogPage.position"
+        @size-change="waterLogHandleSizeChange"
+        @current-change="waterLogHandleCurrentChange"
+        :current-page="waterLogPage.position"
         :page-sizes="availablePageSize"
-        :page-size="walletLogPage.limit"
+        :page-size="waterLogPage.limit"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="walletLogPage.count"
+        :total="waterLogPage.count"
       ></el-pagination>
     </div>
   </div>
@@ -84,7 +84,7 @@ export default {
           }
         ]
       },
-      wallet: {},
+      water: {},
       search: {},
       availablePageSize: [5, 10, 20, 30, 40],
       listStyle: {
@@ -92,80 +92,80 @@ export default {
         width: "100%",
         pagination: { margin: "20px 0px 0px 0px" }
       },
-      walletLogPage: {
+      waterLogPage: {
         offset: 0,
         limit: 20,
         position: 1,
         count: 0,
         loading: true
       },
-      walletLogList: []
+      waterLogList: []
     };
   },
   methods: {
-    ...mapGetters(["takeWallet"]),
-    ...mapMutations(["updateWallet"]),
-    toWallet() {
-      this.$router.push({ path: "/wallet" });
+    ...mapGetters(["takeWater"]),
+    ...mapMutations(["updateWater"]),
+    toWater() {
+      this.$router.push({ path: "/water" });
     },
-    walletLogHandleSizeChange(val) {
-      this.walletLogPage.limit = val;
-      this.synchronizeWalletLogList();
+    waterLogHandleSizeChange(val) {
+      this.waterLogPage.limit = val;
+      this.synchronizeWaterLogList();
     },
-    walletLogHandleCurrentChange(val) {
-      this.synchronizeWalletLogList(val);
+    waterLogHandleCurrentChange(val) {
+      this.synchronizeWaterLogList(val);
     },
     handleClick(tab, event) {},
 
-    async synchronizeWalletLogList(posit) {
-      this.wallet = this.takeWallet();
+    async synchronizeWaterLogList(posit) {
+      this.water = this.takeWater();
 
-      posit = posit != null ? posit : this.walletLogPage.position;
-      this.walletLogPage.offset = this.walletLogPage.limit * --posit;
+      posit = posit != null ? posit : this.waterLogPage.position;
+      this.waterLogPage.offset = this.waterLogPage.limit * --posit;
 
-      let data = Object.assign({}, this.walletLogPage, this.search);
-      data.num = this.wallet.num;
+      let data = Object.assign({}, this.waterLogPage, this.search);
+      data.num = this.water.num;
 
       if (data.date) {
         data.startDate = data.date[0];
         data.endDate = data.date[1];
       }
 
-      this.walletLogPage.loading = true;
+      this.waterLogPage.loading = true;
       let [suc, error] = await this.myHttp.asyncPost({
-        url: "/wallet/log/list",
+        url: "/water/log/list",
         data: JSON.stringify(data)
       });
       if (suc) {
-        this.walletLogPage.count = suc.data.count;
-        this.walletLogList = suc.data.list;
+        this.waterLogPage.count = suc.data.count;
+        this.waterLogList = suc.data.list;
       }
 
-      this.walletLogPage.loading = false;
+      this.waterLogPage.loading = false;
     }
   },
   mounted() {
-    this.synchronizeWalletLogList();
+    this.synchronizeWaterLogList();
   }
 };
 </script>
 
 <style>
-#bhe_walletLog .el-tabs__item {
+#bhe_waterLog .el-tabs__item {
   font-weight: 769;
   font-size: 17px;
 }
 
-#bhe_walletLog .bhe_tableExpand {
+#bhe_waterLog .bhe_tableExpand {
   font-size: 0;
 }
 
-#bhe_walletLog .bhe_tableExpand label {
+#bhe_waterLog .bhe_tableExpand label {
   width: 120px;
   color: #99a9bf;
 }
 
-#bhe_walletLog .bhe_tableExpand .el-form-item {
+#bhe_waterLog .bhe_tableExpand .el-form-item {
   margin-right: 0;
   margin-bottom: 0;
   width: 100%;

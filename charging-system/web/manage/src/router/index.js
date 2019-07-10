@@ -46,6 +46,16 @@ let router = new Router({
                     component: resolve => require(['@/view/OrderList'], resolve)
                 },
                 {
+                    path: 'water',
+                    name: 'Water',
+                    component: resolve => require(['@/view/Water'], resolve)
+                },
+                {
+                    path: 'water/log',
+                    name: 'WaterLog',
+                    component: resolve => require(['@/view/WaterLog'], resolve)
+                },
+                {
                     path: 'news',
                     name: 'News',
                     component: resolve => require(['@/view/News'], resolve)

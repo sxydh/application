@@ -25,10 +25,10 @@ public class WalletController {
     private WalletService walletService;
 
     @RequestMapping(value = "/order/list", method = { RequestMethod.POST })
-    public ResponseTemplate orderList(@RequestBody Map<String, Object> rq_u) {
+    public ResponseTemplate orderList(@RequestBody Map<String, Object> rq_w) {
         ResponseTemplate rt = new ResponseTemplate();
         try {
-            rt.setData(walletService.orderList(rq_u));
+            rt.setData(walletService.orderList(rq_w));
             rt.setSc(Note.SC_OK);
         } catch (NoteException e) {
             rt.setSc(Note.SC_BADREQUEST);
@@ -43,10 +43,10 @@ public class WalletController {
     }
 
     @RequestMapping(value = "/log/list", method = { RequestMethod.POST })
-    public ResponseTemplate logList(@RequestBody Map<String, Object> rq_u) {
+    public ResponseTemplate logList(@RequestBody Map<String, Object> rq_w) {
         ResponseTemplate rt = new ResponseTemplate();
         try {
-            rt.setData(walletService.logList(rq_u));
+            rt.setData(walletService.logList(rq_w));
             rt.setSc(Note.SC_OK);
         } catch (NoteException e) {
             rt.setSc(Note.SC_BADREQUEST);
@@ -61,10 +61,10 @@ public class WalletController {
     }
 
     @RequestMapping(value = "/recharge", method = { RequestMethod.POST })
-    public ResponseTemplate recharge(@RequestBody Map<String, Object> rq_u) {
+    public ResponseTemplate recharge(@RequestBody Map<String, Object> rq_w) {
         ResponseTemplate rt = new ResponseTemplate();
         try {
-            walletService.recharge(rq_u);
+            walletService.recharge(rq_w);
             rt.setSc(Note.SC_OK);
         } catch (NoteException e) {
             rt.setSc(Note.SC_BADREQUEST);
@@ -79,10 +79,10 @@ public class WalletController {
     }
 
     @RequestMapping(value = "/list", method = { RequestMethod.POST })
-    public ResponseTemplate list(@RequestBody Map<String, Object> rq_u) {
+    public ResponseTemplate list(@RequestBody Map<String, Object> rq_w) {
         ResponseTemplate rt = new ResponseTemplate();
         try {
-            rt.setData(walletService.list(rq_u));
+            rt.setData(walletService.list(rq_w));
             rt.setSc(Note.SC_OK);
         } catch (NoteException e) {
             rt.setSc(Note.SC_BADREQUEST);

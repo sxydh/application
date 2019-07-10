@@ -33,6 +33,7 @@
         :height="listStyle.height"
         :style="{width: listStyle.width}"
         v-loading="orderListPage.loading"
+        element-loading-background="rgba(0, 0, 0, 0)"
       >
         <el-table-column prop="id" label="OrderID" sortable width="300"></el-table-column>
         <el-table-column prop="createtime" label="CreateTime" sortable width="250"></el-table-column>

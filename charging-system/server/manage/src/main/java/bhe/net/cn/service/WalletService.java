@@ -27,9 +27,9 @@ public class WalletService {
     @Autowired
     private SessionUtils session;
 
-    public Page list(Map<String, Object> rq_u) {
-        Integer offset = (Integer) rq_u.get("offset");
-        Integer limit = (Integer) rq_u.get("limit");
+    public Page list(Map<String, Object> rq_w) {
+        Integer offset = (Integer) rq_w.get("offset");
+        Integer limit = (Integer) rq_w.get("limit");
         List<Boolean> valid = new ArrayList<>();
         valid.add(offset != null);
         valid.add(limit != null);
@@ -40,21 +40,21 @@ public class WalletService {
         Map<String, Object> cachedUser = session.getCurUser();
         int type = ((BigDecimal) cachedUser.get("type")).intValue();
         int role = ((BigDecimal) cachedUser.get("role")).intValue();
-        rq_u.put("type", type);
-        rq_u.put("role", role);
+        rq_w.put("type", type);
+        rq_w.put("role", role);
         //
 
         Page page = new Page();
-        page.setList(walletMapper.walletList(rq_u));
-        page.setCount(walletMapper.walletCount(rq_u));
+        page.setList(walletMapper.walletList(rq_w));
+        page.setCount(walletMapper.walletCount(rq_w));
 
         return page;
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public void recharge(Map<String, Object> rq_u) {
-        String walletNum = (String) rq_u.get("walletNum");
-        Integer value = (Integer) rq_u.get("value");
+    public void recharge(Map<String, Object> rq_w) {
+        String walletNum = (String) rq_w.get("walletNum");
+        Integer value = (Integer) rq_w.get("value");
         List<Boolean> valid = new ArrayList<>();
         valid.add(StringUtils.isNotEmpty(walletNum));
         valid.add(value != null && value > 0);
@@ -86,32 +86,32 @@ public class WalletService {
         // order
         Long walletId = (Long) oldWallet.get("id");
         BigDecimal balance = (BigDecimal) oldWallet.get("balance");
-        rq_u.put("id", HelperUtils.buildOrderId(((Long) tarUser.get("id")).intValue()));
-        rq_u.put("type", 3);
-        rq_u.put("status", 1);
-        rq_u.put("walletId", walletId);
-        rq_u.put("credit", HelperUtils.creditGet(value));
-        rq_u.put("balance", balance);
-        rq_u.put("userId", curId);
-        walletMapper.orderAdd(rq_u);
+        rq_w.put("id", HelperUtils.buildOrderId(((Long) tarUser.get("id")).intValue()));
+        rq_w.put("type", 3);
+        rq_w.put("status", 1);
+        rq_w.put("walletId", walletId);
+        rq_w.put("credit", HelperUtils.creditGet(value));
+        rq_w.put("balance", balance);
+        rq_w.put("userId", curId);
+        walletMapper.orderAdd(rq_w);
 
         // wallet
         BigDecimal oldCredit = (BigDecimal) oldWallet.get("credit");
         BigDecimal oldBalance = (BigDecimal) oldWallet.get("balance");
-        rq_u.put("id", walletId);
-        rq_u.put("credit", oldCredit.add(new BigDecimal(HelperUtils.creditGet(value))));
-        rq_u.put("balance", oldBalance.add(new BigDecimal(value)));
-        walletMapper.walletUpdate(rq_u);
+        rq_w.put("id", walletId);
+        rq_w.put("credit", oldCredit.add(new BigDecimal(HelperUtils.creditGet(value))));
+        rq_w.put("balance", oldBalance.add(new BigDecimal(value)));
+        walletMapper.walletUpdate(rq_w);
 
         // wallet log
-        rq_u.put("remark", HelperUtils.walletLogRemarkGen(3, value));
-        walletMapper.walletLogAdd(rq_u);
+        rq_w.put("remark", HelperUtils.walletLogRemarkGen(3, value));
+        walletMapper.walletLogAdd(rq_w);
     }
 
-    public Page logList(Map<String, Object> rq_u) {
-        String num = (String) rq_u.get("num");
-        Integer offset = (Integer) rq_u.get("offset");
-        Integer limit = (Integer) rq_u.get("limit");
+    public Page logList(Map<String, Object> rq_w) {
+        String num = (String) rq_w.get("num");
+        Integer offset = (Integer) rq_w.get("offset");
+        Integer limit = (Integer) rq_w.get("limit");
         List<Boolean> valid = new ArrayList<>();
         valid.add(StringUtils.isNotEmpty(num));
         valid.add(offset != null);
@@ -128,16 +128,16 @@ public class WalletService {
         //
 
         Page page = new Page();
-        page.setList(walletMapper.logList(rq_u));
-        page.setCount(walletMapper.logCount(rq_u));
+        page.setList(walletMapper.logList(rq_w));
+        page.setCount(walletMapper.logCount(rq_w));
 
         return page;
     }
 
-    public Page orderList(Map<String, Object> rq_u) {
-        String num = (String) rq_u.get("num");
-        Integer offset = (Integer) rq_u.get("offset");
-        Integer limit = (Integer) rq_u.get("limit");
+    public Page orderList(Map<String, Object> rq_w) {
+        String num = (String) rq_w.get("num");
+        Integer offset = (Integer) rq_w.get("offset");
+        Integer limit = (Integer) rq_w.get("limit");
         List<Boolean> valid = new ArrayList<>();
         valid.add(StringUtils.isNotEmpty(num));
         valid.add(offset != null);
@@ -154,8 +154,8 @@ public class WalletService {
         //
 
         Page page = new Page();
-        page.setList(walletMapper.orderList(rq_u));
-        page.setCount(walletMapper.orderCount(rq_u));
+        page.setList(walletMapper.orderList(rq_w));
+        page.setCount(walletMapper.orderCount(rq_w));
 
         return page;
     }

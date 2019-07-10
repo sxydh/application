@@ -33,6 +33,7 @@
         :height="listStyle.height"
         :style="{width: listStyle.width}"
         v-loading="userPage.loading"
+        element-loading-background="rgba(0, 0, 0, 0)"
       >
         <el-table-column type="expand">
           <template slot-scope="scope">
