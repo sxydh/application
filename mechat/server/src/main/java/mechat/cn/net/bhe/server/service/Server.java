@@ -31,7 +31,6 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -40,7 +39,10 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import mechat.cn.net.bhe.server.protocol.MessageObj;
 import mechat.cn.net.bhe.server.utils.HelperUtils;
 
 /**
@@ -51,6 +53,7 @@ public class Server extends WebSocketServer {
     private static ConcurrentMap<String, WebSocket> availableClients = new ConcurrentHashMap<>();
     private static ConcurrentMap<String, WebSocket> allClients = new ConcurrentHashMap<>();
     private static ConcurrentMap<String, String> lock = new ConcurrentHashMap<>();
+    static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
 
     public Server(int port) throws UnknownHostException {
         super(new InetSocketAddress(port));
@@ -66,6 +69,8 @@ public class Server extends WebSocketServer {
 
         allClients.put(key, conn);
         availableClients.put(key, conn);
+
+        System.out.println("\n" + "allClients: " + allClients + "\n" + "availableClients: " + availableClients + "\n");
     }
 
     @Override
@@ -78,51 +83,57 @@ public class Server extends WebSocketServer {
 
     @Override
     public void onMessage(WebSocket conn, String message) {
-        Map<String, Object> kv = HelperUtils.parse(message);
-        String method = (String) kv.get("Method");
-        String address = (String) kv.get("Address");
-        int port = (int) kv.get("Port");
-        String content = (String) kv.get("Content");
+        WebSocket target;
 
-        if (method.equals("GET")) {
-            WebSocket client = getRandomClient(conn);
-            if (client == null) {
+        MessageObj messageObj = MessageObj.parse(message);
+
+        String method = messageObj.getMethod_();
+        String sAddress = messageObj.getSAddress_();
+        int sPort = messageObj.getSPort_();
+        String tAddress = messageObj.getTAddress_();
+        int tPort = messageObj.getTport_();
+        String content = messageObj.getContent_();
+
+        if (method.equals(MessageObj.GET)) {
+            target = getRandomClient(conn);
+            if (target == null) {
                 return;
             }
 
-            InetSocketAddress local = client.getLocalSocketAddress();
-            InetSocketAddress remote = client.getRemoteSocketAddress();
+            InetSocketAddress inetSocketAddress = target.getRemoteSocketAddress();
 
-            String response = "";
-            response += "Method: ACK";
-            response += "Type: text";
-            response += "Address: " + local.getHostString();
-            response += "Port: " + local.getPort();
-            response += "Content: " + remote.getHostString() + "," + remote.getPort();
+            messageObj.setMethod_(MessageObj.POST);
+            messageObj.setSAddress_(inetSocketAddress.getHostString());
+            messageObj.setSPort_(inetSocketAddress.getPort());
+            messageObj.setTAddress_(sAddress);
+            messageObj.setTport_(sPort);
+            messageObj.setContent_("");
 
-            client.send(response);
+            message = MessageObj.wrap(messageObj);
+
+            conn.send(message);
         }
 
         else if (method.equals("POST")) {
-            String keyConn = HelperUtils.keyGen(conn.getRemoteSocketAddress());
-            String keyClient = HelperUtils.keyGen(address, port);
+            String keySource = HelperUtils.keyGen(conn.getRemoteSocketAddress());
+            String keyTarget = HelperUtils.keyGen(tAddress, tPort);
 
-            WebSocket client = allClients.get(keyClient);
-            if (client == null) {
+            target = allClients.get(keyTarget);
+            if (target == null) {
                 return;
             }
 
-            if (!keyClient.equals(lock.get(keyConn))) {
+            if (!keyTarget.equals(lock.get(keySource))) {
                 return;
             }
 
-            client.send(content);
+            target.send(content);
         }
     }
 
-    private synchronized WebSocket getRandomClient(WebSocket conn) {
-        String keyConn = HelperUtils.keyGen(conn.getRemoteSocketAddress());
-        if (lock.get(keyConn) != null) {
+    private synchronized WebSocket getRandomClient(WebSocket source) {
+        String keySource = HelperUtils.keyGen(source.getRemoteSocketAddress());
+        if (lock.get(keySource) != null) {
             return null;
         }
 
@@ -134,22 +145,22 @@ public class Server extends WebSocketServer {
         }
         int index = ThreadLocalRandom.current().nextInt(size);
 
-        WebSocket client = null;
+        WebSocket target = null;
         while (true) {
-            client = availableClients.get(Arrays.asList(keys).get(index));
-            if (conn != client) {
+            target = availableClients.get(Arrays.asList(keys).get(index));
+            if (source != target) {
                 break;
             }
         }
 
-        String keyClient = HelperUtils.keyGen(client.getRemoteSocketAddress());
+        String keyTarget = HelperUtils.keyGen(target.getRemoteSocketAddress());
 
-        lock.put(keyConn, keyClient);
-        lock.put(keyClient, keyConn);
+        lock.put(keySource, keyTarget);
+        lock.put(keyTarget, keySource);
 
-        availableClients.remove(keyClient);
+        availableClients.remove(keyTarget);
 
-        return client;
+        return target;
     }
 
     @Override
