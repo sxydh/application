@@ -7,7 +7,7 @@ public enum HelperUtils {
     ;
     public static String keyGen(InetSocketAddress inetSocketAddress) {
         String address = inetSocketAddress.getHostString();
-        int port = inetSocketAddress.getPort();
+        String port = inetSocketAddress.getPort() + "";
 
         String str = address + port;
         try {
@@ -18,7 +18,7 @@ public enum HelperUtils {
         }
     }
 
-    public static String keyGen(String address, int port) {
+    public static String keyGen(String address, String port) {
 
         String str = address + port;
         try {

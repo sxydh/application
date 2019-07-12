@@ -31,6 +31,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Date;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -126,19 +127,19 @@ public class ChatClient extends JFrame implements ActionListener {
 
                     @Override
                     public void onMessage(String message) {
-                        ta.append("got: " + message + "\n");
+                        ta.append("got: " + message + "\n" + new Date() + "\n");
                         ta.setCaretPosition(ta.getDocument().getLength());
                     }
 
                     @Override
                     public void onOpen(ServerHandshake handshake) {
-                        ta.append("You are connected to ChatServer: " + getURI() + "\n");
+                        ta.append("You are connected to ChatServer: " + getURI() + "\n" + "You are in: " + getLocalSocketAddress().getPort() + "\n" + new Date() + "\n");
                         ta.setCaretPosition(ta.getDocument().getLength());
                     }
 
                     @Override
                     public void onClose(int code, String reason, boolean remote) {
-                        ta.append("You have been disconnected from: " + getURI() + "; Code: " + code + " " + reason + "\n");
+                        ta.append("You have been disconnected from: " + getURI() + "; Code: " + code + " " + reason + "\n" + new Date() + "\n");
                         ta.setCaretPosition(ta.getDocument().getLength());
                         connect.setEnabled(true);
                         uriField.setEditable(true);
@@ -148,7 +149,7 @@ public class ChatClient extends JFrame implements ActionListener {
 
                     @Override
                     public void onError(Exception ex) {
-                        ta.append("Exception occured ...\n" + ex + "\n");
+                        ta.append("Exception occured ...\n" + ex + "\n" + new Date() + "\n");
                         ta.setCaretPosition(ta.getDocument().getLength());
                         ex.printStackTrace();
                         connect.setEnabled(true);

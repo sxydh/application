@@ -4,5 +4,5 @@ const prodEnv = require('./prod.env')
 
 module.exports = merge(prodEnv, {
   NODE_ENV: '"development"',
-  SERVER: '"ws://127.0.0.1:8887"'
+  SERVER: '"ws://www.bhe.net.cn:8887"'
 })

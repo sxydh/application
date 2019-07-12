@@ -30,18 +30,24 @@ import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Joiner;
+
+import mechat.cn.net.bhe.server.protocol.Dict;
 import mechat.cn.net.bhe.server.protocol.MessageObj;
 import mechat.cn.net.bhe.server.utils.HelperUtils;
 
@@ -50,9 +56,10 @@ import mechat.cn.net.bhe.server.utils.HelperUtils;
  */
 public class Server extends WebSocketServer {
 
-    private static ConcurrentMap<String, WebSocket> availableClients = new ConcurrentHashMap<>();
-    private static ConcurrentMap<String, WebSocket> allClients = new ConcurrentHashMap<>();
-    private static ConcurrentMap<String, String> lock = new ConcurrentHashMap<>();
+    private static Map<String, WebSocket> availableClients = new HashMap<>();
+    private static Map<String, WebSocket> allClients = new HashMap<>();
+    private static Map<String, String> lock = new HashMap<>();
+
     static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
 
     public Server(int port) throws UnknownHostException {
@@ -70,65 +77,122 @@ public class Server extends WebSocketServer {
         allClients.put(key, conn);
         availableClients.put(key, conn);
 
-        System.out.println("\n" + "allClients: " + allClients + "\n" + "availableClients: " + availableClients + "\n");
+        printMap(Thread.currentThread().getStackTrace()[1].getMethodName());
     }
 
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-        String key = HelperUtils.keyGen(conn.getRemoteSocketAddress());
+        String keySource = HelperUtils.keyGen(conn.getRemoteSocketAddress());
+        String keyTarget = lock.get(keySource);
 
-        allClients.remove(key);
-        availableClients.remove(key);
+        lock.remove(keySource);
+        lock.remove(keyTarget);
+
+        allClients.remove(keySource);
+
+        availableClients.remove(keySource);
+
+        WebSocket target = allClients.get(keyTarget);
+        if (target != null) {
+            availableClients.put(keyTarget, target);
+        }
+
+        printMap(Thread.currentThread().getStackTrace()[1].getMethodName());
     }
 
     @Override
     public void onMessage(WebSocket conn, String message) {
-        WebSocket target;
+        printMap(Thread.currentThread().getStackTrace()[1].getMethodName());
+
+        LOGGER.info(Thread.currentThread().getStackTrace()[1].getMethodName() + "\n" + message + "\n");
 
         MessageObj messageObj = MessageObj.parse(message);
+        LOGGER.info(Thread.currentThread().getStackTrace()[1].getMethodName() + "\n" + ReflectionToStringBuilder.toString(messageObj, ToStringStyle.MULTI_LINE_STYLE) + "\n");
 
         String method = messageObj.getMethod_();
-        String sAddress = messageObj.getSAddress_();
-        int sPort = messageObj.getSPort_();
-        String tAddress = messageObj.getTAddress_();
-        int tPort = messageObj.getTport_();
-        String content = messageObj.getContent_();
 
-        if (method.equals(MessageObj.GET)) {
-            target = getRandomClient(conn);
-            if (target == null) {
-                return;
+        // clientA => [server => clientA, clientB]
+        if (method.equals(Dict.GET)) {
+            WebSocket source = getRandomClient(conn);
+            if (source != null) {
+                InetSocketAddress targetInet = conn.getRemoteSocketAddress();
+                InetSocketAddress sourceInet = source.getRemoteSocketAddress();
+
+                // server => clientA
+                messageObj.setMethod_(Dict.POST);
+                messageObj.setType_(Dict.TEXT);
+                messageObj.setSAddress_(sourceInet.getHostString());
+                messageObj.setSPort_(sourceInet.getPort() + "");
+                messageObj.setTAddress_(targetInet.getHostString());
+                messageObj.setTPort_(targetInet.getPort() + "");
+                messageObj.setContent_("");
+
+                LOGGER.info(Thread.currentThread().getStackTrace()[1].getMethodName() + "\n" + ReflectionToStringBuilder.toString(messageObj, ToStringStyle.MULTI_LINE_STYLE));
+                message = MessageObj.wrap(messageObj);
+
+                conn.send(message);
+
+                // server => clientB
+                messageObj.setSAddress_(targetInet.getHostString());
+                messageObj.setSPort_(targetInet.getPort() + "");
+                messageObj.setTAddress_(sourceInet.getHostString());
+                messageObj.setTPort_(sourceInet.getPort() + "");
+
+                LOGGER.info(Thread.currentThread().getStackTrace()[1].getMethodName() + "\n" + ReflectionToStringBuilder.toString(messageObj, ToStringStyle.MULTI_LINE_STYLE));
+                message = MessageObj.wrap(messageObj);
+
+                source.send(message);
             }
-
-            InetSocketAddress inetSocketAddress = target.getRemoteSocketAddress();
-
-            messageObj.setMethod_(MessageObj.POST);
-            messageObj.setSAddress_(inetSocketAddress.getHostString());
-            messageObj.setSPort_(inetSocketAddress.getPort());
-            messageObj.setTAddress_(sAddress);
-            messageObj.setTport_(sPort);
-            messageObj.setContent_("");
-
-            message = MessageObj.wrap(messageObj);
-
-            conn.send(message);
         }
 
-        else if (method.equals("POST")) {
+        // clientA => [server => clientB]
+        else if (method.equals(Dict.POST)) {
+            String tAddress = messageObj.getTAddress_();
+            String tPort = messageObj.getTPort_();
+
             String keySource = HelperUtils.keyGen(conn.getRemoteSocketAddress());
             String keyTarget = HelperUtils.keyGen(tAddress, tPort);
 
-            target = allClients.get(keyTarget);
-            if (target == null) {
-                return;
+            WebSocket target = allClients.get(keyTarget);
+            if (target != null && keyTarget.equals(lock.get(keySource))) {
+                // server => clientB
+                message = MessageObj.wrap(messageObj);
+                target.send(message);
             }
-
-            if (!keyTarget.equals(lock.get(keySource))) {
-                return;
-            }
-
-            target.send(content);
         }
+
+        // clientA => [server => clientA]
+        else if (method.equals(Dict.LEAVE)) {
+            String tAddress = messageObj.getTAddress_();
+            String tPort = messageObj.getTPort_();
+
+            String keySource = HelperUtils.keyGen(conn.getRemoteSocketAddress());
+            String keyTarget = HelperUtils.keyGen(tAddress, tPort);
+
+            WebSocket target = allClients.get(keyTarget);
+            if (target != null) {
+                lock.remove(keySource);
+                lock.remove(keyTarget);
+
+                availableClients.put(keySource, conn);
+                availableClients.put(keyTarget, target);
+
+                messageObj.setMethod_(Dict.LEAVE);
+                messageObj.setType_(Dict.TEXT);
+                messageObj.setSAddress_("");
+                messageObj.setSPort_("");
+                messageObj.setTAddress_("");
+                messageObj.setTPort_("");
+                messageObj.setContent_("");
+
+                message = MessageObj.wrap(messageObj);
+
+                conn.send(message);
+                target.send(message);
+            }
+        }
+
+        printMap(Thread.currentThread().getStackTrace()[1].getMethodName());
     }
 
     private synchronized WebSocket getRandomClient(WebSocket source) {
@@ -137,17 +201,20 @@ public class Server extends WebSocketServer {
             return null;
         }
 
-        Set<String> keys = availableClients.keySet();
+        Set<String> keySet = availableClients.keySet();
+        List<String> keys = new ArrayList<>();
+        keys.addAll(keySet);
         int size = keys.size();
 
-        if (size <= 2) {
+        if (size < 1) {
             return null;
         }
-        int index = ThreadLocalRandom.current().nextInt(size);
 
         WebSocket target = null;
+        int index;
         while (true) {
-            target = availableClients.get(Arrays.asList(keys).get(index));
+            index = ThreadLocalRandom.current().nextInt(size);
+            target = availableClients.get(keys.get(index));
             if (source != target) {
                 break;
             }
@@ -159,6 +226,7 @@ public class Server extends WebSocketServer {
         lock.put(keyTarget, keySource);
 
         availableClients.remove(keyTarget);
+        availableClients.remove(keySource);
 
         return target;
     }
@@ -203,6 +271,16 @@ public class Server extends WebSocketServer {
         System.out.println("Server started!");
         setConnectionLostTimeout(0);
         setConnectionLostTimeout(100);
+    }
+
+    private void printMap(String methodName) {
+        LOGGER.info(methodName
+                //
+                + "\n" + "allClients: " + "\n" + Joiner.on('\n').withKeyValueSeparator(" = ").join(allClients)
+                //
+                + "\n" + "availableClients: " + "\n" + Joiner.on('\n').withKeyValueSeparator(" = ").join(availableClients)
+                //
+                + "\n" + "lock: " + "\n" + Joiner.on('\n').withKeyValueSeparator(" = ").join(lock) + "\n");
     }
 
 }

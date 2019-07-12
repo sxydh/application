@@ -8,19 +8,15 @@ import org.apache.commons.lang3.StringUtils;
 
 public class MessageObj {
 
-    public static final String GET = "GET";
-    public static final String POST = "POST";
-    public static final String ACK = "ACK";
-
     public MessageObj() {
     }
 
     private String Method_;
     private String Type_;
     private String SAddress_;
-    private int SPort_;
+    private String SPort_;
     private String TAddress_;
-    private int Tport_;
+    private String TPort_;
     private String Content_;
 
     public static MessageObj parse(String message) {
@@ -38,21 +34,21 @@ public class MessageObj {
                 if (i < length) {
                     curFname = fields[i].getName();
                     if (StringUtils.isNotEmpty(preFname) && !preFname.equals(curFname) && preMethod != null) {
-                        int begin = message.indexOf(preFname);
+                        int begin = message.indexOf(preFname) + preFname.length();
                         int end = message.indexOf(curFname);
                         String value = message.substring(begin, end);
                         preMethod.invoke(messageObj, value);
                     }
 
                     preFname = curFname;
-                    preMethod = messageObj.getClass().getMethod("set" + curFname.substring(0, 1).toUpperCase() + curFname.substring(1));
+                    preMethod = messageObj.getClass().getMethod("set" + curFname.substring(0, 1).toUpperCase() + curFname.substring(1), String.class);
                 } else {
-                    int begin = message.indexOf(preFname);
+                    int begin = message.indexOf(preFname) + preFname.length();
                     String value = message.substring(begin);
                     preMethod.invoke(messageObj, value);
                 }
             } catch (Exception e) {
-                System.err.println(e.getLocalizedMessage());
+                e.printStackTrace();
             }
         }
 
@@ -91,16 +87,12 @@ public class MessageObj {
         return SAddress_;
     }
 
-    public int getSPort_() {
+    public String getSPort_() {
         return SPort_;
     }
 
     public String getTAddress_() {
         return TAddress_;
-    }
-
-    public int getTport_() {
-        return Tport_;
     }
 
     public String getContent_() {
@@ -119,7 +111,7 @@ public class MessageObj {
         SAddress_ = sAddress_;
     }
 
-    public void setSPort_(int sPort_) {
+    public void setSPort_(String sPort_) {
         SPort_ = sPort_;
     }
 
@@ -127,12 +119,16 @@ public class MessageObj {
         TAddress_ = tAddress_;
     }
 
-    public void setTport_(int tport_) {
-        Tport_ = tport_;
-    }
-
     public void setContent_(String content_) {
         Content_ = content_;
+    }
+
+    public String getTPort_() {
+        return TPort_;
+    }
+
+    public void setTPort_(String tPort_) {
+        TPort_ = tPort_;
     }
 
 }
