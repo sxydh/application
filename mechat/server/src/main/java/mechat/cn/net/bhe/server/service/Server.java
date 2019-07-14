@@ -47,7 +47,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
 
-import mechat.cn.net.bhe.server.protocol.Dict;
 import mechat.cn.net.bhe.server.protocol.MessageObj;
 import mechat.cn.net.bhe.server.utils.HelperUtils;
 
@@ -111,91 +110,17 @@ public class Server extends WebSocketServer {
 
         String method = messageObj.getMethod_();
 
-        // clientA => [server => clientA, clientB]
-        if (method.equals(Dict.GET)) {
-            WebSocket source = getRandomClient(conn);
-            if (source != null) {
-                InetSocketAddress targetInet = conn.getRemoteSocketAddress();
-                InetSocketAddress sourceInet = source.getRemoteSocketAddress();
-
-                // server => clientA
-                messageObj.setMethod_(Dict.POST);
-                messageObj.setType_(Dict.TEXT);
-                messageObj.setSAddress_(sourceInet.getHostString());
-                messageObj.setSPort_(sourceInet.getPort() + "");
-                messageObj.setTAddress_(targetInet.getHostString());
-                messageObj.setTPort_(targetInet.getPort() + "");
-                messageObj.setContent_("");
-
-                LOGGER.info(Thread.currentThread().getStackTrace()[1].getMethodName() + "\n" + ReflectionToStringBuilder.toString(messageObj, ToStringStyle.MULTI_LINE_STYLE));
-                message = MessageObj.wrap(messageObj);
-
-                conn.send(message);
-
-                // server => clientB
-                messageObj.setSAddress_(targetInet.getHostString());
-                messageObj.setSPort_(targetInet.getPort() + "");
-                messageObj.setTAddress_(sourceInet.getHostString());
-                messageObj.setTPort_(sourceInet.getPort() + "");
-
-                LOGGER.info(Thread.currentThread().getStackTrace()[1].getMethodName() + "\n" + ReflectionToStringBuilder.toString(messageObj, ToStringStyle.MULTI_LINE_STYLE));
-                message = MessageObj.wrap(messageObj);
-
-                source.send(message);
-            }
-        }
-
-        // clientA => [server => clientB]
-        else if (method.equals(Dict.POST)) {
-            String tAddress = messageObj.getTAddress_();
-            String tPort = messageObj.getTPort_();
-
-            String keySource = HelperUtils.keyGen(conn.getRemoteSocketAddress());
-            String keyTarget = HelperUtils.keyGen(tAddress, tPort);
-
-            WebSocket target = allClients.get(keyTarget);
-            if (target != null && keyTarget.equals(lock.get(keySource))) {
-                // server => clientB
-                message = MessageObj.wrap(messageObj);
-                target.send(message);
-            }
-        }
-
-        // clientA => [server => clientA]
-        else if (method.equals(Dict.LEAVE)) {
-            String tAddress = messageObj.getTAddress_();
-            String tPort = messageObj.getTPort_();
-
-            String keySource = HelperUtils.keyGen(conn.getRemoteSocketAddress());
-            String keyTarget = HelperUtils.keyGen(tAddress, tPort);
-
-            WebSocket target = allClients.get(keyTarget);
-            if (target != null) {
-                lock.remove(keySource);
-                lock.remove(keyTarget);
-
-                availableClients.put(keySource, conn);
-                availableClients.put(keyTarget, target);
-
-                messageObj.setMethod_(Dict.LEAVE);
-                messageObj.setType_(Dict.TEXT);
-                messageObj.setSAddress_("");
-                messageObj.setSPort_("");
-                messageObj.setTAddress_("");
-                messageObj.setTPort_("");
-                messageObj.setContent_("");
-
-                message = MessageObj.wrap(messageObj);
-
-                conn.send(message);
-                target.send(message);
-            }
+        try {
+            Handler handler = (Handler) Class.forName("mechat.cn.net.bhe.server.service.method." + method).newInstance();
+            handler.handle(conn, messageObj);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         printMap(Thread.currentThread().getStackTrace()[1].getMethodName());
     }
 
-    private synchronized WebSocket getRandomClient(WebSocket source) {
+    public static synchronized WebSocket getRandomClient(WebSocket source) {
         String keySource = HelperUtils.keyGen(source.getRemoteSocketAddress());
         if (lock.get(keySource) != null) {
             return null;
@@ -281,6 +206,18 @@ public class Server extends WebSocketServer {
                 + "\n" + "availableClients: " + "\n" + Joiner.on('\n').withKeyValueSeparator(" = ").join(availableClients)
                 //
                 + "\n" + "lock: " + "\n" + Joiner.on('\n').withKeyValueSeparator(" = ").join(lock) + "\n");
+    }
+
+    public static Map<String, WebSocket> getAvailableClients() {
+        return availableClients;
+    }
+
+    public static Map<String, WebSocket> getAllClients() {
+        return allClients;
+    }
+
+    public static Map<String, String> getLock() {
+        return lock;
     }
 
 }

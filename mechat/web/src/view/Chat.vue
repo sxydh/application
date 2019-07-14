@@ -1,32 +1,39 @@
 <template>
-  <div
-    id="bhe_chat"
-    style="background-color: #000000; position: relative; width: 100%; height: 100vh; text-align: center;"
-  >
-    <div
-      id="bhe_list"
-      style="width: 700px; height: 700px; display: inline-block; text-align: left;"
-    ></div>
+  <div id="bhe_chat">
+    <div id="bhe_list"></div>
     <div />
-    <div id="bhe_input" style="border: none; width: 700px; height: 200px; display: inline-block;">
-      <textarea
-        id="bhe_textarea"
-        autofocus
-        style="outline: none; border: none; resize: none; color: #FFFFFF; width: 100%; height: 100%; background-color: #000000;"
-        @keyup.enter="send"
-      ></textarea>
-      <button id="bhe_exit" @click="get">Get</button>
-      <button id="bhe_exit" @click="exit">Exit</button>
-    </div>
+    <el-input
+      id="bhe_input"
+      type="textarea"
+      autosize
+      autofocus
+      v-model="input"
+      @keyup.ctrl.enter.native="send"
+    ></el-input>
   </div>
 </template>
 
 <style>
-::-webkit-scrollbar {
+#bhe_chat {
+  overflow-y: scroll;
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  text-align: center;
+}
+#bhe_input {
   background-color: #000000;
+  color: #ffffff;
+  display: inline-block;
+  width: 700px;
+  outline: none;
+  border: none;
+  resize: none;
 }
 #bhe_list {
-  overflow-y: scroll;
+  width: 700px;
+  display: inline-block;
+  text-align: left;
 }
 #bhe_list > p {
   word-wrap: break-word;
@@ -37,6 +44,7 @@
 export default {
   data() {
     return {
+      input: "",
       webSocket: null,
       messageObj: {
         Method_: null,
@@ -53,10 +61,14 @@ export default {
     this.initWebSocket();
   },
   mounted: function() {
-    let element = $("#bhe_textarea");
+    let element = $("#bhe_input");
     setInterval(function() {
       element.focus();
     }, 0);
+
+    setTimeout(() => {
+      this.get();
+    }, 2000);
   },
   destroyed() {
     this.webSocket.close();
@@ -78,15 +90,15 @@ export default {
       this.webSocket.send(message);
       console.log("webSocket.send( " + message + " )");
     },
-    send() {
+    send(e) {
       let messageObj = Object.assign({}, this.messageObj);
-      messageObj.Content_ = $("#bhe_textarea").val();
+      messageObj.Content_ = this.input;
 
       let message = this.wrap(messageObj);
       this.webSocket.send(message);
       console.log("webSocket.send( " + message + " )");
 
-      $("#bhe_textarea").val("");
+      this.input = "";
 
       this.handleMessage(
         messageObj.SAddress_ + messageObj.SPort_,
@@ -113,20 +125,37 @@ export default {
       console.log("webSocket.onmessage( " + e.data + " )");
 
       Object.assign(this.messageObj, this.parse(e.data));
-      this.handleMessage(
-        this.messageObj.TAddress_ + this.messageObj.TPort_,
-        this.messageObj.Content_,
-        "style='color: #C3602C;'"
-      );
+
+      this.handleMessage(Object.assign({}, this.messageObj));
     },
-    handleMessage(speaker, content, style) {
-      let md5 = require("md5");
-      speaker = md5(speaker);
+    handleMessage(mObj) {
+      switch (mObj.Method_) {
+        case "GET":
+          if (!mObj.SAddress_ && !mobj.SPort_) {
+            let speaker = "system";
+            let uuidv1 = require("uuid/v1");
+            let id = uuidv1();
 
-      let p = "<p " + style + ">" + speaker + ": " + content + "</p>";
-      $("#bhe_list").append(p);
+            let p = "";
+            p += "<p id='" + id + "' style='color: #f54242'>";
+            p += speaker + ": waiting, " + mObj.Content_;
+            p += "</p>";
+            $("#bhe_list").append(p);
+            break;
+          }
+        case "POST":
+          let md5 = require("md5");
+          speaker = md5(mObj.SAddress_ + mObj.SPort_);
 
-      let element = $("#bhe_list");
+          let p = "";
+          p += "<p style='color: #C3602C'>";
+          p += speaker + ": " + mObj.Content_;
+          p += "</p>";
+          $("#bhe_list").append(p);
+          break;
+      }
+
+      let element = $("#bhe_chat");
       element.scrollTop(element[0].scrollHeight);
     },
     onclose(e) {

@@ -3,7 +3,7 @@
     id="app"
     style="position: relative; min-width: 1000px; width: auto; margin: 0px; padding: 0px;"
   >
-    <router-view/>
+    <router-view />
   </div>
 </template>
 
@@ -17,5 +17,9 @@ export default {
 body {
   padding: 0px;
   margin: 0px;
+}
+
+body * {
+  background-color: #000000;
 }
 </style>
