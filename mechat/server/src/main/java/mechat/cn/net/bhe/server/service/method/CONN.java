@@ -2,8 +2,6 @@ package mechat.cn.net.bhe.server.service.method;
 
 import java.util.Map;
 
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,13 +39,21 @@ public class CONN implements Handler {
         WebSocket clientA = allClients.get(keyA);
         WebSocket clientB = allClients.get(keyB);
 
+        if (Dict.N.equalsIgnoreCase(content)) {
+            Map<String, String> lock = Server.getLock();
+            lock.remove(keyA);
+            lock.remove(keyB);
+
+            Map<String, WebSocket> availableClients = Server.getAvailableClients();
+            availableClients.put(keyA, conn);
+            availableClients.put(keyB, clientB);
+        }
+
         // server => clientA
         messageObj.setSAddress_(bAddress);
         messageObj.setSPort_(bPort);
         messageObj.setTAddress_(aAddress);
         messageObj.setTPort_(aPort);
-
-        LOGGER.info(Thread.currentThread().getStackTrace()[1].getMethodName() + "\n" + ReflectionToStringBuilder.toString(messageObj, ToStringStyle.MULTI_LINE_STYLE));
 
         String message = MessageObj.wrap(messageObj);
 
@@ -58,8 +64,6 @@ public class CONN implements Handler {
         messageObj.setSPort_(aPort);
         messageObj.setTAddress_(bAddress);
         messageObj.setTPort_(bPort);
-
-        LOGGER.info(Thread.currentThread().getStackTrace()[1].getMethodName() + "\n" + ReflectionToStringBuilder.toString(messageObj, ToStringStyle.MULTI_LINE_STYLE));
 
         message = MessageObj.wrap(messageObj);
 

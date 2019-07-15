@@ -1,10 +1,9 @@
 package mechat.cn.net.bhe.server.service.method;
 
 import java.net.InetSocketAddress;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import mechat.cn.net.bhe.server.protocol.MessageObj;
 import mechat.cn.net.bhe.server.service.Handler;
 import mechat.cn.net.bhe.server.service.Server;
+import mechat.cn.net.bhe.server.utils.HelperUtils;
 
 public class GET implements Handler {
 
@@ -19,18 +19,32 @@ public class GET implements Handler {
 
     @Override
     // clientA => [server => clientA, clientB]
-    public void handle(WebSocket conn, MessageObj messageObj) {
-        WebSocket clientB;
+    public synchronized void handle(WebSocket conn, MessageObj messageObj) {
+        WebSocket clientB = null;
 
+        String keyA = HelperUtils.keyGen(conn.getRemoteSocketAddress());
         String keyB = messageObj.getContent_();
 
+        Map<String, String> lock = Server.getLock();
+
         if (StringUtils.isNotEmpty(keyB)) {
-            clientB = Server.getAllClients().get(keyB);
+            clientB = Server.getAvailableClients().get(keyB);
         } else {
-            clientB = Server.getRandomClient(conn);
+            if (lock.get(keyA) == null) {
+                clientB = Server.getRandomClient(conn);
+            }
         }
 
         if (clientB != null) {
+            keyB = HelperUtils.keyGen(clientB.getRemoteSocketAddress());
+
+            lock.put(keyA, keyB);
+            lock.put(keyB, keyA);
+
+            Map<String, WebSocket> availableClients = Server.getAvailableClients();
+            availableClients.remove(keyB);
+            availableClients.remove(keyA);
+
             InetSocketAddress aInet = conn.getRemoteSocketAddress();
             InetSocketAddress bInet = clientB.getRemoteSocketAddress();
 
@@ -41,7 +55,6 @@ public class GET implements Handler {
             messageObj.setTPort_(aInet.getPort() + "");
             messageObj.setContent_("");
 
-            LOGGER.info(Thread.currentThread().getStackTrace()[1].getMethodName() + "\n" + ReflectionToStringBuilder.toString(messageObj, ToStringStyle.MULTI_LINE_STYLE));
             String message = MessageObj.wrap(messageObj);
 
             conn.send(message);
@@ -52,7 +65,6 @@ public class GET implements Handler {
             messageObj.setTAddress_(bInet.getHostString());
             messageObj.setTPort_(bInet.getPort() + "");
 
-            LOGGER.info(Thread.currentThread().getStackTrace()[1].getMethodName() + "\n" + ReflectionToStringBuilder.toString(messageObj, ToStringStyle.MULTI_LINE_STYLE));
             message = MessageObj.wrap(messageObj);
 
             clientB.send(message);

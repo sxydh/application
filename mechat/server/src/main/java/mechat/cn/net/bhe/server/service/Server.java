@@ -120,12 +120,7 @@ public class Server extends WebSocketServer {
         printMap(Thread.currentThread().getStackTrace()[1].getMethodName());
     }
 
-    public static synchronized WebSocket getRandomClient(WebSocket source) {
-        String keySource = HelperUtils.keyGen(source.getRemoteSocketAddress());
-        if (lock.get(keySource) != null) {
-            return null;
-        }
-
+    public static WebSocket getRandomClient(WebSocket conn) {
         Set<String> keySet = availableClients.keySet();
         List<String> keys = new ArrayList<>();
         keys.addAll(keySet);
@@ -135,25 +130,17 @@ public class Server extends WebSocketServer {
             return null;
         }
 
-        WebSocket target = null;
+        WebSocket clientB = null;
         int index;
         while (true) {
             index = ThreadLocalRandom.current().nextInt(size);
-            target = availableClients.get(keys.get(index));
-            if (source != target) {
+            clientB = availableClients.get(keys.get(index));
+            if (conn != clientB) {
                 break;
             }
         }
 
-        String keyTarget = HelperUtils.keyGen(target.getRemoteSocketAddress());
-
-        lock.put(keySource, keyTarget);
-        lock.put(keyTarget, keySource);
-
-        availableClients.remove(keyTarget);
-        availableClients.remove(keySource);
-
-        return target;
+        return clientB;
     }
 
     @Override

@@ -2,7 +2,7 @@
   <div id="bhe_chat">
     <div id="bhe_list">
       <p id="bhe_separator"></p>
-      <p id="bhe_system" style="display: none;">{{system.note}}</p>
+      <p id="bhe_system" style="color: #777777; display: none;">{{system.note}}</p>
       <p id="bhe_keep" style="color: #ff0000;">{{system.mode}}</p>
     </div>
     <div />
@@ -119,7 +119,7 @@ export default {
       let systemNote = $("#bhe_system").clone();
       systemNote.html(this.system.note);
       systemNote.removeAttr("id");
-      systemNote.css("color", "#ffffff");
+      systemNote.css("color", "#777777");
       let list = $("#bhe_list");
       let separator = $("#bhe_separator");
       $("#bhe_system").hide();
@@ -157,10 +157,14 @@ export default {
             this.appendSystemNote();
             return;
           }
-          this.appendLocalMessage("( " + messageObj.Content_ + " ) => CONN");
+
+          this.system.note = "( " + messageObj.Content_ + " ) => CONN";
+          this.appendSystemNote();
           break;
         case "GET":
-          this.appendLocalMessage("( " + messageObj.Content_ + " ) => GET");
+          this.system.connectionStatus = -1;
+          this.system.note = "( " + messageObj.Content_ + " ) => GET";
+          this.appendSystemNote();
           break;
         case "LEAVE":
           if (
@@ -175,7 +179,8 @@ export default {
             this.appendSystemNote();
             return;
           }
-          this.appendLocalMessage("(  ) => LEAVE");
+          this.system.note = "(  ) => LEAVE";
+          this.appendSystemNote();
           break;
         case "LIST":
           if (!(messageObj.SAddress_ && messageObj.SPort_)) {
@@ -183,7 +188,8 @@ export default {
             this.appendSystemNote();
             return;
           }
-          this.appendLocalMessage("(  ) => LIST");
+          this.system.note = "(  ) => LIST";
+          this.appendSystemNote();
           break;
         case "POST":
           if (
@@ -249,10 +255,10 @@ export default {
       switch (mObj.Method_) {
         case "GET":
           // system reply after GET request
-          if (!mObj.SAddress_ && !mObj.SPort_) {
+          if (!mObj.TAddress_ && !mObj.TPort_) {
             this.input.disabled = true;
 
-            let second = 10;
+            let second = 100;
             let countdown = setInterval(() => {
               let y = this.system.connectionStatus == 1;
               let n = second == 0 || this.system.connectionStatus == 0;
@@ -287,7 +293,7 @@ export default {
             this.messageObj.Method_ = "CONN";
             this.system.mode = "CONN";
 
-            let id = keyGen(mObj.SAddress_, mObj.SPort_);
+            let id = this.keyGen(mObj.TAddress_, mObj.TPort_);
             let second = 10;
             let countdown = setInterval(() => {
               let y = this.system.connectionStatus == 1;
@@ -295,15 +301,17 @@ export default {
               if (y || n) {
                 if (y) {
                   this.system.note = "connected to " + id;
+                  this.system.mode = "POST";
                 } else if (n) {
                   this.system.note = "rejection to " + id;
+                  this.messageObj.Method_ = "CONN";
+                  this.messageObj.Content_ = "n";
+                  this.send();
                 }
 
                 this.appendSystemNote();
 
                 clearInterval(countdown);
-
-                this.system.mode = "POST";
               }
 
               this.system.note =
@@ -328,13 +336,13 @@ export default {
         case "LEAVE":
           this.system.connectionStatus = 0;
 
-          let id = keyGen(mObj.SAddress_, mObj.SPort_);
+          let id = keyGen(mObj.TAddress_, mObj.TPort_);
           this.system.note = "disconnected to " + id;
 
           this.appendSystemNote();
 
-          this.messageObj.SAddress_ = "";
-          this.messageObj.SPort_ = "";
+          this.messageObj.TAddress_ = "";
+          this.messageObj.TPort_ = "";
           break;
 
         case "LIST":
@@ -348,15 +356,17 @@ export default {
           break;
 
         case "POST":
-          let speaker = keyGen(mObj.SAddress_, mObj.SPort_);
-
-          let p = "";
-          p += "<p style='color: #C3602C'>";
-          p += speaker + ": " + mObj.Content_;
-          p += "</p>";
+          let speaker = keyGen(mObj.TAddress_, mObj.TPort_);
+          let p = $(document.createElement("P"));
+          p.css("color", "#ff6600");
+          let inner = speaker + ": " + mObj.Content_;
+          p.html(inner);
           let list = $("#bhe_list");
           let separator = $("#bhe_separator");
-          list.insertBefore(p, separator);
+          list[0].insertBefore(p[0], separator[0]);
+
+          let element = $("#bhe_chat");
+          element.scrollTop(element[0].scrollHeight);
           break;
       }
 
