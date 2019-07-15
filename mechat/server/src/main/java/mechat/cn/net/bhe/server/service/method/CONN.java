@@ -8,18 +8,27 @@ import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import mechat.cn.net.bhe.server.protocol.Dict;
 import mechat.cn.net.bhe.server.protocol.MessageObj;
 import mechat.cn.net.bhe.server.service.Handler;
 import mechat.cn.net.bhe.server.service.Server;
 import mechat.cn.net.bhe.server.utils.HelperUtils;
 
-public class ACK implements Handler {
+/**
+ * Passive.
+ */
+public class CONN implements Handler {
 
-    static final Logger LOGGER = LoggerFactory.getLogger(ACK.class);
+    static final Logger LOGGER = LoggerFactory.getLogger(CONN.class);
 
     @Override
     // clientA => [server => clientA, clientB]
     public void handle(WebSocket conn, MessageObj messageObj) {
+        String content = messageObj.getContent_();
+        if (!Dict.Y.equalsIgnoreCase(content) && !Dict.N.equalsIgnoreCase(content)) {
+            return;
+        }
+
         String aAddress = messageObj.getSAddress_();
         String aPort = messageObj.getSPort_();
         String bAddress = messageObj.getTAddress_();
@@ -37,7 +46,6 @@ public class ACK implements Handler {
         messageObj.setSPort_(bPort);
         messageObj.setTAddress_(aAddress);
         messageObj.setTPort_(aPort);
-        messageObj.setContent_("CONNECTED");
 
         LOGGER.info(Thread.currentThread().getStackTrace()[1].getMethodName() + "\n" + ReflectionToStringBuilder.toString(messageObj, ToStringStyle.MULTI_LINE_STYLE));
 
@@ -50,7 +58,6 @@ public class ACK implements Handler {
         messageObj.setSPort_(aPort);
         messageObj.setTAddress_(bAddress);
         messageObj.setTPort_(bPort);
-        messageObj.setContent_("CONNECTED");
 
         LOGGER.info(Thread.currentThread().getStackTrace()[1].getMethodName() + "\n" + ReflectionToStringBuilder.toString(messageObj, ToStringStyle.MULTI_LINE_STYLE));
 

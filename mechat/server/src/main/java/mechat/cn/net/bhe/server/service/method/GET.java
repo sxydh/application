@@ -2,6 +2,7 @@ package mechat.cn.net.bhe.server.service.method;
 
 import java.net.InetSocketAddress;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.java_websocket.WebSocket;
@@ -19,7 +20,16 @@ public class GET implements Handler {
     @Override
     // clientA => [server => clientA, clientB]
     public void handle(WebSocket conn, MessageObj messageObj) {
-        WebSocket clientB = Server.getRandomClient(conn);
+        WebSocket clientB;
+
+        String keyB = messageObj.getContent_();
+
+        if (StringUtils.isNotEmpty(keyB)) {
+            clientB = Server.getAllClients().get(keyB);
+        } else {
+            clientB = Server.getRandomClient(conn);
+        }
+
         if (clientB != null) {
             InetSocketAddress aInet = conn.getRemoteSocketAddress();
             InetSocketAddress bInet = clientB.getRemoteSocketAddress();

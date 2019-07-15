@@ -1,13 +1,18 @@
 <template>
   <div id="bhe_chat">
-    <div id="bhe_list"></div>
+    <div id="bhe_list">
+      <p id="bhe_separator"></p>
+      <p id="bhe_system" style="display: none;">{{system.note}}</p>
+      <p id="bhe_keep" style="color: #ff0000;">{{system.mode}}</p>
+    </div>
     <div />
     <el-input
       id="bhe_input"
       type="textarea"
       autosize
       autofocus
-      v-model="input"
+      :disabled="input.disabled"
+      v-model="input.value"
       @keyup.ctrl.enter.native="send"
     ></el-input>
   </div>
@@ -22,8 +27,6 @@
   text-align: center;
 }
 #bhe_input {
-  background-color: #000000;
-  color: #ffffff;
   display: inline-block;
   width: 700px;
   outline: none;
@@ -44,7 +47,14 @@
 export default {
   data() {
     return {
-      input: "",
+      input: { value: "", disabled: false },
+      /*clientA => clientB*/
+      system: {
+        connectionStatus: 0, // connection status with the other side, 0: rejected, 1: connected, -1: confirming
+        note: "",
+        connectionId: "", // the other side name
+        mode: "input a {{valid mode}}"
+      },
       webSocket: null,
       messageObj: {
         Method_: null,
@@ -65,46 +75,153 @@ export default {
     setInterval(function() {
       element.focus();
     }, 0);
-
-    setTimeout(() => {
-      this.get();
-    }, 2000);
   },
   destroyed() {
     this.webSocket.close();
   },
   methods: {
-    get() {
-      let messageObj = Object.assign({}, this.messageObj);
-      messageObj.Method_ = "GET";
+    instructionParse() {
+      let instruction = this.input.value.replace(/\s+/g, "");
+      if (!new RegExp("^{{2}\\w+}{2}$").test(instruction)) {
+        return false;
+      }
 
-      let message = this.wrap(messageObj);
-      this.webSocket.send(message);
-      console.log("webSocket.send( " + message + " )");
+      let begin = instruction.indexOf("{{") + 2;
+      let end = instruction.indexOf("}}");
+
+      instruction = instruction.substring(begin, end);
+
+      let valid = true;
+      switch (instruction) {
+        case "GET":
+          break;
+        case "LEAVE":
+          break;
+        case "LIST":
+          break;
+        case "POST":
+          break;
+        default:
+          valid = false;
+      }
+
+      if (valid) {
+        this.messageObj.Method_ = instruction;
+        this.system.mode = "you are in {{" + instruction + "}}";
+      } else {
+        this.messageObj.Method_ = "";
+        this.system.mode = "input a {{valid mode}}";
+      }
+
+      return true;
     },
-    exit() {
-      let messageObj = Object.assign({}, this.messageObj);
-      messageObj.Method_ = "LEAVE";
+    appendSystemNote() {
+      let systemNote = $("#bhe_system").clone();
+      systemNote.html(this.system.note);
+      systemNote.removeAttr("id");
+      systemNote.css("color", "#ffffff");
+      let list = $("#bhe_list");
+      let separator = $("#bhe_separator");
+      $("#bhe_system").hide();
+      list[0].insertBefore(systemNote[0], separator[0]);
+      systemNote.show();
 
-      let message = this.wrap(messageObj);
-      this.webSocket.send(message);
-      console.log("webSocket.send( " + message + " )");
+      let element = $("#bhe_chat");
+      element.scrollTop(element[0].scrollHeight);
     },
     send(e) {
+      if (this.instructionParse()) {
+        this.input.value = "";
+        return;
+      }
+
       let messageObj = Object.assign({}, this.messageObj);
-      messageObj.Content_ = this.input;
+      messageObj.Content_ = this.input.value;
+
+      switch (messageObj.Method_) {
+        case "CONN":
+          if (messageObj.Content_ != "y" || messageObj.Content_ != "n") {
+            this.system.note = "please input y or n";
+            this.appendSystemNote();
+            return;
+          }
+          if (
+            !(
+              messageObj.SAddress_ &&
+              messageObj.SPort_ &&
+              messageObj.TAddress_ &&
+              messageObj.TPort_
+            )
+          ) {
+            this.system.note = "missing parameters";
+            this.appendSystemNote();
+            return;
+          }
+          this.appendLocalMessage("( " + messageObj.Content_ + " ) => CONN");
+          break;
+        case "GET":
+          this.appendLocalMessage("( " + messageObj.Content_ + " ) => GET");
+          break;
+        case "LEAVE":
+          if (
+            !(
+              messageObj.SAddress_ &&
+              messageObj.SPort_ &&
+              messageObj.TAddress_ &&
+              messageObj.TPort_
+            )
+          ) {
+            this.system.note = "missing parameters";
+            this.appendSystemNote();
+            return;
+          }
+          this.appendLocalMessage("(  ) => LEAVE");
+          break;
+        case "LIST":
+          if (!(messageObj.SAddress_ && messageObj.SPort_)) {
+            this.system.note = "missing parameters";
+            this.appendSystemNote();
+            return;
+          }
+          this.appendLocalMessage("(  ) => LIST");
+          break;
+        case "POST":
+          if (
+            !(
+              messageObj.SAddress_ &&
+              messageObj.SPort_ &&
+              messageObj.TAddress_ &&
+              messageObj.TPort_
+            )
+          ) {
+            this.system.note = "missing parameters";
+            this.appendSystemNote();
+            return;
+          }
+          this.appendLocalMessage(messageObj.Content_);
+          break;
+        default:
+          return;
+      }
 
       let message = this.wrap(messageObj);
       this.webSocket.send(message);
       console.log("webSocket.send( " + message + " )");
 
-      this.input = "";
+      this.input.value = "";
+    },
+    appendLocalMessage(content) {
+      let speaker = "local";
+      let p = "";
+      p += "<p style='color: #ffffff'>";
+      p += speaker + ": " + content;
+      p += "</p>";
+      let list = $("#bhe_list");
+      let separator = $("#bhe_separator");
+      list[0].insertBefore(p, separator[0]);
 
-      this.handleMessage(
-        messageObj.SAddress_ + messageObj.SPort_,
-        messageObj.Content_,
-        "style='color: #FFFFFF;'"
-      );
+      let element = $("#bhe_chat");
+      element.scrollTop(element[0].scrollHeight);
     },
     initWebSocket() {
       const wsuri = process.env.SERVER;
@@ -124,39 +241,131 @@ export default {
     onmessage(e) {
       console.log("webSocket.onmessage( " + e.data + " )");
 
-      Object.assign(this.messageObj, this.parse(e.data));
+      Object.assign(this.messageObj, this.messageParse(e.data));
 
       this.handleMessage(Object.assign({}, this.messageObj));
     },
     handleMessage(mObj) {
       switch (mObj.Method_) {
         case "GET":
+          // system reply after GET request
           if (!mObj.SAddress_ && !mobj.SPort_) {
-            let speaker = "system";
-            let uuidv1 = require("uuid/v1");
-            let id = uuidv1();
+            this.input.disabled = true;
 
-            let p = "";
-            p += "<p id='" + id + "' style='color: #f54242'>";
-            p += speaker + ": waiting, " + mObj.Content_;
-            p += "</p>";
-            $("#bhe_list").append(p);
-            break;
+            let second = 10;
+            let countdown = setInterval(() => {
+              let y = this.system.connectionStatus == 1;
+              let n = second == 0 || this.system.connectionStatus == 0;
+              if (y || n) {
+                if (y) {
+                  this.system.note = "connected to " + this.system.connectionId;
+                } else if (n) {
+                  this.system.note =
+                    "rejection from " + this.system.connectionId;
+                }
+
+                this.input.disabled = false;
+
+                this.appendSystemNote();
+
+                clearInterval(countdown);
+              }
+
+              this.system.note = "waiting, " + --second + "s";
+            }, 1000);
+
+            $("#bhe_system").show();
           }
+
+          // connected request from clientB
+          else if (
+            mObj.SAddress_ &&
+            mObj.SPort_ &&
+            mObj.TAddress_ &&
+            mObj.TPort_
+          ) {
+            this.messageObj.Method_ = "CONN";
+            this.system.mode = "CONN";
+
+            let id = keyGen(mObj.SAddress_, mObj.SPort_);
+            let second = 10;
+            let countdown = setInterval(() => {
+              let y = this.system.connectionStatus == 1;
+              let n = second == 0 || this.system.connectionStatus == 0;
+              if (y || n) {
+                if (y) {
+                  this.system.note = "connected to " + id;
+                } else if (n) {
+                  this.system.note = "rejection to " + id;
+                }
+
+                this.appendSystemNote();
+
+                clearInterval(countdown);
+
+                this.system.mode = "POST";
+              }
+
+              this.system.note =
+                "connected request from " + id + ", y/n? " + --second + "s";
+            }, 1000);
+
+            $("#bhe_system").show();
+          }
+          break;
+
+        case "CONN":
+          let messageObj = Object.assign({}, this.messageObj);
+          if (messageObj.Content_ == "y") {
+            this.system.connectionStatus = 1;
+          } else {
+            this.system.connectionStatus = 0;
+            this.messageObj.TAddress_ = "";
+            this.messageObj.TPort_ = "";
+          }
+          break;
+
+        case "LEAVE":
+          this.system.connectionStatus = 0;
+
+          let id = keyGen(mObj.SAddress_, mObj.SPort_);
+          this.system.note = "disconnected to " + id;
+
+          this.appendSystemNote();
+
+          this.messageObj.SAddress_ = "";
+          this.messageObj.SPort_ = "";
+          break;
+
+        case "LIST":
+          let keyBs = mObj.Content_.split(",");
+          keyBs.forEach(e => {
+            this.system.note = "<br/>" + e;
+          });
+
+          this.appendSystemNote();
+
+          break;
+
         case "POST":
-          let md5 = require("md5");
-          speaker = md5(mObj.SAddress_ + mObj.SPort_);
+          let speaker = keyGen(mObj.SAddress_, mObj.SPort_);
 
           let p = "";
           p += "<p style='color: #C3602C'>";
           p += speaker + ": " + mObj.Content_;
           p += "</p>";
-          $("#bhe_list").append(p);
+          let list = $("#bhe_list");
+          let separator = $("#bhe_separator");
+          list.insertBefore(p, separator);
           break;
       }
 
       let element = $("#bhe_chat");
       element.scrollTop(element[0].scrollHeight);
+    },
+    keyGen(address, port) {
+      let md5 = require("md5");
+      return md5(address + port);
     },
     onclose(e) {
       console.log("webSocket.close( " + new Date() + " )");
@@ -171,7 +380,7 @@ export default {
 
       return result;
     },
-    parse(message) {
+    messageParse(message) {
       let messageObj = Object.assign({}, this.messageObj);
 
       let fields = Object.keys(messageObj);
