@@ -212,13 +212,13 @@ export default {
     },
     appendLocalMessage(content) {
       let speaker = "local";
-      let p = "";
-      p += "<p style='color: #ffffff'>";
-      p += speaker + ": " + content;
-      p += "</p>";
+      let p = $(document.createElement("P"));
+      p.css("color", "#ffffff");
+      let inner = speaker + ": " + content;
+      p.html(inner);
       let list = $("#bhe_list");
       let separator = $("#bhe_separator");
-      list[0].insertBefore(p, separator[0]);
+      list[0].insertBefore(p[0], separator[0]);
 
       let element = $("#bhe_chat");
       element.scrollTop(element[0].scrollHeight);
@@ -249,7 +249,7 @@ export default {
       switch (mObj.Method_) {
         case "GET":
           // system reply after GET request
-          if (!mObj.SAddress_ && !mobj.SPort_) {
+          if (!mObj.SAddress_ && !mObj.SPort_) {
             this.input.disabled = true;
 
             let second = 10;
