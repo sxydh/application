@@ -3,8 +3,6 @@ package mechat.cn.net.bhe.server.service.method;
 import java.net.InetSocketAddress;
 import java.util.Map;
 
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +40,6 @@ public class LIST implements Handler {
             messageObj.setContent_(content.substring(1));
         }
 
-        LOGGER.info(Thread.currentThread().getStackTrace()[1].getMethodName() + "\n" + ReflectionToStringBuilder.toString(messageObj, ToStringStyle.MULTI_LINE_STYLE));
         String message = MessageObj.wrap(messageObj);
 
         conn.send(message);

@@ -37,8 +37,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
@@ -81,19 +79,19 @@ public class Server extends WebSocketServer {
 
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-        String keySource = HelperUtils.keyGen(conn.getRemoteSocketAddress());
-        String keyTarget = lock.get(keySource);
+        String keyA = HelperUtils.keyGen(conn.getRemoteSocketAddress());
+        String keyB = lock.get(keyA);
 
-        lock.remove(keySource);
-        lock.remove(keyTarget);
+        lock.remove(keyA);
+        lock.remove(keyB);
 
-        allClients.remove(keySource);
+        allClients.remove(keyA);
 
-        availableClients.remove(keySource);
+        availableClients.remove(keyA);
 
-        WebSocket target = allClients.get(keyTarget);
-        if (target != null) {
-            availableClients.put(keyTarget, target);
+        WebSocket clientB = allClients.get(keyB);
+        if (clientB != null) {
+            availableClients.put(keyB, clientB);
         }
 
         printMap(Thread.currentThread().getStackTrace()[1].getMethodName());
@@ -101,12 +99,11 @@ public class Server extends WebSocketServer {
 
     @Override
     public void onMessage(WebSocket conn, String message) {
-        printMap(Thread.currentThread().getStackTrace()[1].getMethodName());
-
         LOGGER.info(Thread.currentThread().getStackTrace()[1].getMethodName() + "\n" + message + "\n");
 
+        printMap(Thread.currentThread().getStackTrace()[1].getMethodName());
+
         MessageObj messageObj = MessageObj.parse(message);
-        LOGGER.info(Thread.currentThread().getStackTrace()[1].getMethodName() + "\n" + ReflectionToStringBuilder.toString(messageObj, ToStringStyle.MULTI_LINE_STYLE) + "\n");
 
         String method = messageObj.getMethod_();
 

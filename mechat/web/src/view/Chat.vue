@@ -2,8 +2,9 @@
   <div id="bhe_chat">
     <div id="bhe_list">
       <p id="bhe_separator"></p>
-      <p id="bhe_system" style="color: #777777; display: none;">{{system.note}}</p>
-      <p id="bhe_keep" style="color: #ff0000;">{{system.mode}}</p>
+      <p id="bhe_copy"></p>
+      <p id="bhe_note" style="color: #777777; display: none;">{{system.note}}</p>
+      <p id="bhe_mode" style="color: #ff0000;">{{inputModeGet}}</p>
     </div>
     <div />
     <el-input
@@ -11,7 +12,7 @@
       type="textarea"
       autosize
       autofocus
-      :disabled="input.disabled"
+      :readonly="input.readonly"
       v-model="input.value"
       @keyup.ctrl.enter.native="send"
     ></el-input>
@@ -27,11 +28,15 @@
   text-align: center;
 }
 #bhe_input {
+  background-color: black;
+  color: #ffffff;
   display: inline-block;
   width: 700px;
   outline: none;
   border: none;
   resize: none;
+  padding: 0px;
+  margin: 0px;
 }
 #bhe_list {
   width: 700px;
@@ -47,13 +52,13 @@
 export default {
   data() {
     return {
-      input: { value: "", disabled: false },
+      input: { value: "", readonly: false },
       /*clientA => clientB*/
       system: {
+        history: "",
         connectionStatus: 0, // connection status with the other side, 0: rejected, 1: connected, -1: confirming
         note: "",
-        connectionId: "", // the other side name
-        mode: "input a {{valid mode}}"
+        connectionId: "" // the other side name
       },
       webSocket: null,
       messageObj: {
@@ -66,6 +71,15 @@ export default {
         Content_: null
       }
     };
+  },
+  computed: {
+    inputModeGet() {
+      if (this.messageObj.Method_) {
+        return "you are in {{" + this.messageObj.Method_ + "}}";
+      } else {
+        return "please input {{valid mode}}";
+      }
+    }
   },
   created() {
     this.initWebSocket();
@@ -107,30 +121,31 @@ export default {
 
       if (valid) {
         this.messageObj.Method_ = instruction;
-        this.system.mode = "you are in {{" + instruction + "}}";
       } else {
-        this.messageObj.Method_ = "";
-        this.system.mode = "input a {{valid mode}}";
+        this.system.history = "invalid mode";
+        this.appendSystemHistory();
       }
 
       return true;
     },
-    appendSystemNote() {
-      let systemNote = $("#bhe_system").clone();
-      systemNote.html(this.system.note);
-      systemNote.removeAttr("id");
-      systemNote.css("color", "#777777");
+    appendSystemHistory() {
+      let history = $("#bhe_copy").clone();
+      history.html(this.system.history);
+      history.removeAttr("id");
+      history.css("color", "#777777");
       let list = $("#bhe_list");
       let separator = $("#bhe_separator");
-      $("#bhe_system").hide();
-      list[0].insertBefore(systemNote[0], separator[0]);
-      systemNote.show();
+      list[0].insertBefore(history[0], separator[0]);
+      history.show();
 
       let element = $("#bhe_chat");
       element.scrollTop(element[0].scrollHeight);
     },
     send(e) {
-      if (this.instructionParse()) {
+      let result = this.instructionParse();
+      console.log("instructionParse() => " + result);
+
+      if (result) {
         this.input.value = "";
         return;
       }
@@ -140,9 +155,9 @@ export default {
 
       switch (messageObj.Method_) {
         case "CONN":
-          if (messageObj.Content_ != "y" || messageObj.Content_ != "n") {
-            this.system.note = "please input y or n";
-            this.appendSystemNote();
+          if (messageObj.Content_ != "y" && messageObj.Content_ != "n") {
+            this.system.history = "please input y or n";
+            this.appendSystemHistory();
             return;
           }
           if (
@@ -153,43 +168,41 @@ export default {
               messageObj.TPort_
             )
           ) {
-            this.system.note = "missing parameters";
-            this.appendSystemNote();
+            this.system.history = "crashed and need to be restarted";
+            this.appendSystemHistory();
             return;
           }
 
-          this.system.note = "( " + messageObj.Content_ + " ) => CONN";
-          this.appendSystemNote();
+          this.system.history = "( " + messageObj.Content_ + " ) => CONN";
+          this.appendSystemHistory();
           break;
         case "GET":
+          if (this.messageObj.TAddress_ && this.messageObj.TPort_) {
+            this.system.history = "{{LEAVE}} before {{GET}}";
+            this.appendSystemHistory();
+            return;
+          }
           this.system.connectionStatus = -1;
-          this.system.note = "( " + messageObj.Content_ + " ) => GET";
-          this.appendSystemNote();
+          this.system.history = "( " + messageObj.Content_ + " ) => GET";
+          this.appendSystemHistory();
           break;
         case "LEAVE":
-          if (
-            !(
-              messageObj.SAddress_ &&
-              messageObj.SPort_ &&
-              messageObj.TAddress_ &&
-              messageObj.TPort_
-            )
-          ) {
-            this.system.note = "missing parameters";
-            this.appendSystemNote();
+          if (!(messageObj.TAddress_ && messageObj.TPort_)) {
+            this.system.history = "no connection";
+            this.appendSystemHistory();
             return;
           }
-          this.system.note = "(  ) => LEAVE";
-          this.appendSystemNote();
+          this.system.history = "(  ) => LEAVE";
+          this.appendSystemHistory();
           break;
         case "LIST":
-          if (!(messageObj.SAddress_ && messageObj.SPort_)) {
-            this.system.note = "missing parameters";
-            this.appendSystemNote();
+          if (this.messageObj.TAddress_ && this.messageObj.TPort_) {
+            this.system.history = "{{LEAVE}} before {{LIST}}";
+            this.appendSystemHistory();
             return;
           }
-          this.system.note = "(  ) => LIST";
-          this.appendSystemNote();
+          this.system.history = "(  ) => LIST";
+          this.appendSystemHistory();
           break;
         case "POST":
           if (
@@ -200,8 +213,8 @@ export default {
               messageObj.TPort_
             )
           ) {
-            this.system.note = "missing parameters";
-            this.appendSystemNote();
+            this.system.history = "no connection";
+            this.appendSystemHistory();
             return;
           }
           this.appendLocalMessage(messageObj.Content_);
@@ -256,31 +269,19 @@ export default {
         case "GET":
           // system reply after GET request
           if (!mObj.TAddress_ && !mObj.TPort_) {
-            this.input.disabled = true;
+            this.input.readonly = true;
 
-            let second = 100;
+            let second = 10;
+            this.system.connectionStatus = -1;
             let countdown = setInterval(() => {
-              let y = this.system.connectionStatus == 1;
-              let n = second == 0 || this.system.connectionStatus == 0;
-              if (y || n) {
-                if (y) {
-                  this.system.note = "connected to " + this.system.connectionId;
-                } else if (n) {
-                  this.system.note =
-                    "rejection from " + this.system.connectionId;
-                }
-
-                this.input.disabled = false;
-
-                this.appendSystemNote();
-
+              if (second == 0 || this.system.connectionStatus != -1) {
                 clearInterval(countdown);
               }
-
-              this.system.note = "waiting, " + --second + "s";
+              this.system.note = "waiting, " + second-- + "s";
             }, 1000);
 
-            $("#bhe_system").show();
+            this.system.note = "waiting, " + second + "s";
+            $("#bhe_note").show();
           }
 
           // connected request from clientB
@@ -291,55 +292,68 @@ export default {
             mObj.TPort_
           ) {
             this.messageObj.Method_ = "CONN";
-            this.system.mode = "CONN";
 
             let id = this.keyGen(mObj.TAddress_, mObj.TPort_);
             let second = 10;
+            this.system.connectionStatus = -1;
             let countdown = setInterval(() => {
-              let y = this.system.connectionStatus == 1;
-              let n = second == 0 || this.system.connectionStatus == 0;
-              if (y || n) {
-                if (y) {
-                  this.system.note = "connected to " + id;
-                  this.system.mode = "POST";
-                } else if (n) {
-                  this.system.note = "rejection to " + id;
+              if (second == 0 || this.system.connectionStatus != -1) {
+                clearInterval(countdown);
+
+                if (this.system.connectionStatus == -1) {
                   this.messageObj.Method_ = "CONN";
-                  this.messageObj.Content_ = "n";
+                  this.input.value = "n";
                   this.send();
                 }
-
-                this.appendSystemNote();
-
-                clearInterval(countdown);
               }
-
               this.system.note =
-                "connected request from " + id + ", y/n? " + --second + "s";
+                "connected request with " + id + ", y/n? " + second-- + "s";
             }, 1000);
 
-            $("#bhe_system").show();
+            this.system.note =
+              "connected request with " + id + ", y/n? " + second + "s";
+            $("#bhe_note").show();
           }
           break;
 
         case "CONN":
           let messageObj = Object.assign({}, this.messageObj);
+          this.system.connectionId = this.keyGen(
+            messageObj.TAddress_,
+            messageObj.TPort_
+          );
+
           if (messageObj.Content_ == "y") {
             this.system.connectionStatus = 1;
-          } else {
+
+            this.system.history = "connected with " + this.system.connectionId;
+
+            this.messageObj.Method_ = "POST";
+          } else if (messageObj.Content_ == "n") {
             this.system.connectionStatus = 0;
+
+            this.system.history = "rejected with " + this.system.connectionId;
+
             this.messageObj.TAddress_ = "";
             this.messageObj.TPort_ = "";
+            this.system.connectionId = "";
+
+            this.messageObj.Method_ = "GET";
           }
+
+          this.input.readonly = false;
+
+          $("#bhe_note").hide();
+          this.appendSystemHistory();
           break;
 
         case "LEAVE":
           this.system.connectionStatus = 0;
 
-          let id = keyGen(mObj.TAddress_, mObj.TPort_);
-          this.system.note = "disconnected to " + id;
+          let id = this.keyGen(mObj.TAddress_, mObj.TPort_);
+          this.system.history = "disconnected with " + id;
 
-          this.appendSystemNote();
+          this.appendSystemHistory();
 
           this.messageObj.TAddress_ = "";
           this.messageObj.TPort_ = "";
@@ -347,16 +361,22 @@ export default {
 
         case "LIST":
           let keyBs = mObj.Content_.split(",");
-          keyBs.forEach(e => {
-            this.system.note = "<br/>" + e;
-          });
+          let length = keyBs.length;
 
-          this.appendSystemNote();
+          this.system.history = "";
+          for (let i = 0; i < length; i++) {
+            if (i < length - 1) {
+              this.system.history += keyBs[i] + "<br/>";
+            } else {
+              this.system.history += keyBs[i];
+            }
+          }
+          this.appendSystemHistory();
 
           break;
 
         case "POST":
-          let speaker = keyGen(mObj.TAddress_, mObj.TPort_);
+          let speaker = this.keyGen(mObj.TAddress_, mObj.TPort_);
           let p = $(document.createElement("P"));
           p.css("color", "#ff6600");
           let inner = speaker + ": " + mObj.Content_;
