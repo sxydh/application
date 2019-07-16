@@ -1,8 +1,8 @@
 <template>
   <div id="bhe_chat">
-    <div id="bhe_list">
-      <p id="bhe_separator"></p>
-      <p id="bhe_copy"></p>
+    <div id="bhe_list"></div>
+    <div />
+    <div id="bhe_system">
       <p id="bhe_note" style="color: #777777; display: none;">{{system.note}}</p>
       <p id="bhe_mode" style="color: #ff0000;">{{inputModeGet}}</p>
     </div>
@@ -38,12 +38,15 @@
   padding: 0px;
   margin: 0px;
 }
-#bhe_list {
+#bhe_list,
+#bhe_system {
   width: 700px;
   display: inline-block;
   text-align: left;
 }
-#bhe_list > p {
+#bhe_list > p,
+#bhe_system > p {
+  margin-top: 0px;
   word-wrap: break-word;
 }
 </style>
@@ -55,11 +58,15 @@ export default {
       input: { value: "", readonly: false },
       /*clientA => clientB*/
       system: {
+        second: 10,
+        color: "#777777",
         history: "",
         connectionStatus: 0, // connection status with the other side, 0: rejected, 1: connected, -1: confirming
         note: "",
         connectionId: "" // the other side name
       },
+      local: { name: "&lt;local&gt;", color: "#ffffff" },
+      theOther: { color: "#ff6600" },
       webSocket: null,
       messageObj: {
         Method_: null,
@@ -115,6 +122,10 @@ export default {
           break;
         case "POST":
           break;
+        case "CLEAR":
+          let list = $("#bhe_list");
+          list.html("");
+          return true;
         default:
           valid = false;
       }
@@ -129,14 +140,11 @@ export default {
       return true;
     },
     appendSystemHistory() {
-      let history = $("#bhe_copy").clone();
-      history.html(this.system.history);
-      history.removeAttr("id");
-      history.css("color", "#777777");
+      let p = "<p style='color: " + this.system.color + "'>";
+      p += this.system.history;
+      p += "</p>";
       let list = $("#bhe_list");
-      let separator = $("#bhe_separator");
-      list[0].insertBefore(history[0], separator[0]);
-      history.show();
+      list.append(p);
 
       let element = $("#bhe_chat");
       element.scrollTop(element[0].scrollHeight);
@@ -230,14 +238,11 @@ export default {
       this.input.value = "";
     },
     appendLocalMessage(content) {
-      let speaker = "local";
-      let p = $(document.createElement("P"));
-      p.css("color", "#ffffff");
-      let inner = speaker + ": " + content;
-      p.html(inner);
+      let p = "<p style='color: " + this.local.color + "'>";
+      p += this.local.name + ": " + content;
+      p += "</p>";
       let list = $("#bhe_list");
-      let separator = $("#bhe_separator");
-      list[0].insertBefore(p[0], separator[0]);
+      list.append(p);
 
       let element = $("#bhe_chat");
       element.scrollTop(element[0].scrollHeight);
@@ -271,7 +276,7 @@ export default {
           if (!mObj.TAddress_ && !mObj.TPort_) {
             this.input.readonly = true;
 
-            let second = 10;
+            let second = this.system.second;
             this.system.connectionStatus = -1;
             let countdown = setInterval(() => {
               if (second == 0 || this.system.connectionStatus != -1) {
@@ -294,7 +299,7 @@ export default {
             this.messageObj.Method_ = "CONN";
 
             let id = this.keyGen(mObj.TAddress_, mObj.TPort_);
-            let second = 10;
+            let second = this.system.second;
             this.system.connectionStatus = -1;
             let countdown = setInterval(() => {
               if (second == 0 || this.system.connectionStatus != -1) {
@@ -376,14 +381,13 @@ export default {
           break;
 
         case "POST":
-          let speaker = this.keyGen(mObj.TAddress_, mObj.TPort_);
-          let p = $(document.createElement("P"));
-          p.css("color", "#ff6600");
-          let inner = speaker + ": " + mObj.Content_;
-          p.html(inner);
+          let speaker =
+            "&lt;" + this.keyGen(mObj.TAddress_, mObj.TPort_) + "&gt;";
+          let p = "<p style='color: " + this.theOther.color + "'>";
+          p += speaker + ": " + mObj.Content_;
+          p += "</p>";
           let list = $("#bhe_list");
-          let separator = $("#bhe_separator");
-          list[0].insertBefore(p[0], separator[0]);
+          list.append(p);
 
           let element = $("#bhe_chat");
           element.scrollTop(element[0].scrollHeight);
