@@ -12,7 +12,7 @@ import mechat.cn.net.bhe.server.service.Handler;
 import mechat.cn.net.bhe.server.service.Server;
 import mechat.cn.net.bhe.server.utils.HelperUtils;
 
-public class LIST implements Handler {
+public class LIST extends Handler {
 
     static final Logger LOGGER = LoggerFactory.getLogger(LIST.class);
 
@@ -42,7 +42,7 @@ public class LIST implements Handler {
 
         String message = MessageObj.wrap(messageObj);
 
-        conn.send(message);
+        send(conn, message);
     }
 
 }

@@ -244,6 +244,11 @@ export default {
       }
 
       let message = this.wrap(messageObj);
+      if (this.webSocket.readyState != 1) {
+        this.system.history = "crashed and need to be restarted";
+        this.appendSystemHistory();
+        return;
+      }
       this.webSocket.send(message);
       console.log("webSocket.send( " + message + " )");
 

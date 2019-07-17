@@ -7,7 +7,7 @@ import mechat.cn.net.bhe.server.service.Handler;
 import mechat.cn.net.bhe.server.service.Server;
 import mechat.cn.net.bhe.server.utils.HelperUtils;
 
-public class POST implements Handler {
+public class POST extends Handler {
 
     @Override
     // clientA => [server => clientB]
@@ -22,7 +22,7 @@ public class POST implements Handler {
         if (clientB != null && keyB.equals(Server.getLock().get(keyA))) {
             // server => clientB
             String message = MessageObj.wrap(messageObj);
-            clientB.send(message);
+            send(clientB, message);
         }
     }
 

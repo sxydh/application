@@ -9,7 +9,7 @@ import mechat.cn.net.bhe.server.service.Handler;
 import mechat.cn.net.bhe.server.service.Server;
 import mechat.cn.net.bhe.server.utils.HelperUtils;
 
-public class LEAVE implements Handler {
+public class LEAVE extends Handler {
 
     @Override
     // clientA => [server => clientA, clientB]
@@ -41,7 +41,7 @@ public class LEAVE implements Handler {
 
             String message = MessageObj.wrap(messageObj);
 
-            conn.send(message);
+            send(conn, message);
 
             // server => clientB
             messageObj.setSAddress_(aAddress);
@@ -51,7 +51,7 @@ public class LEAVE implements Handler {
 
             message = MessageObj.wrap(messageObj);
 
-            clientB.send(message);
+            send(clientB, message);
         }
     }
 

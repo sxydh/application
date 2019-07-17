@@ -45,7 +45,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
 
+import mechat.cn.net.bhe.server.protocol.Dict;
 import mechat.cn.net.bhe.server.protocol.MessageObj;
+import mechat.cn.net.bhe.server.service.method.LEAVE;
 import mechat.cn.net.bhe.server.utils.HelperUtils;
 
 /**
@@ -82,17 +84,26 @@ public class Server extends WebSocketServer {
         String keyA = HelperUtils.keyGen(conn.getRemoteSocketAddress());
         String keyB = lock.get(keyA);
 
-        lock.remove(keyA);
-        lock.remove(keyB);
+        WebSocket clientB = allClients.get(keyB);
+
+        if (clientB != null) {
+            // handling that the connection is not disconnected before closing
+            InetSocketAddress aInet = conn.getRemoteSocketAddress();
+            InetSocketAddress bInet = clientB.getRemoteSocketAddress();
+
+            MessageObj messageObj = new MessageObj();
+            messageObj.setMethod_(Dict.LEAVE);
+            messageObj.setSAddress_(aInet.getHostString());
+            messageObj.setSPort_(aInet.getPort() + "");
+            messageObj.setTAddress_(bInet.getHostString());
+            messageObj.setTPort_(bInet.getPort() + "");
+
+            LEAVE leave = new LEAVE();
+            leave.handle(conn, messageObj);
+        }
 
         allClients.remove(keyA);
-
         availableClients.remove(keyA);
-
-        WebSocket clientB = allClients.get(keyB);
-        if (clientB != null) {
-            availableClients.put(keyB, clientB);
-        }
 
         printMap(Thread.currentThread().getStackTrace()[1].getMethodName());
     }

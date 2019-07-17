@@ -13,7 +13,7 @@ import mechat.cn.net.bhe.server.service.Handler;
 import mechat.cn.net.bhe.server.service.Server;
 import mechat.cn.net.bhe.server.utils.HelperUtils;
 
-public class GET implements Handler {
+public class GET extends Handler {
 
     static final Logger LOGGER = LoggerFactory.getLogger(GET.class);
 
@@ -57,7 +57,7 @@ public class GET implements Handler {
 
             String message = MessageObj.wrap(messageObj);
 
-            conn.send(message);
+            send(conn, message);
 
             // server => clientB
             messageObj.setSAddress_(aInet.getHostString());
@@ -67,7 +67,7 @@ public class GET implements Handler {
 
             message = MessageObj.wrap(messageObj);
 
-            clientB.send(message);
+            send(clientB, message);
         }
     }
 }

@@ -15,7 +15,7 @@ import mechat.cn.net.bhe.server.utils.HelperUtils;
 /**
  * Passive.
  */
-public class CONN implements Handler {
+public class CONN extends Handler {
 
     static final Logger LOGGER = LoggerFactory.getLogger(CONN.class);
 
@@ -57,7 +57,7 @@ public class CONN implements Handler {
 
         String message = MessageObj.wrap(messageObj);
 
-        clientA.send(message);
+        send(clientA, message);
 
         // server => clientB
         messageObj.setSAddress_(aAddress);
@@ -67,7 +67,7 @@ public class CONN implements Handler {
 
         message = MessageObj.wrap(messageObj);
 
-        clientB.send(message);
+        send(clientB, message);
     }
 
 }
