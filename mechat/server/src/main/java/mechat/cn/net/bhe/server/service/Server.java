@@ -123,7 +123,7 @@ public class Server extends WebSocketServer {
         keys.addAll(keySet);
         int size = keys.size();
 
-        if (size < 1) {
+        if (size < 2) {
             return null;
         }
 

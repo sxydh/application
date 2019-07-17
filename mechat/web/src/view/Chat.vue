@@ -84,7 +84,7 @@ export default {
       if (this.messageObj.Method_) {
         return "you are in {{" + this.messageObj.Method_ + "}}";
       } else {
-        return "please input {{valid mode}}";
+        return "input {{HELP}} to get help";
       }
     }
   },
@@ -113,6 +113,7 @@ export default {
       instruction = instruction.substring(begin, end);
 
       let valid = true;
+      let list = $("#bhe_list");
       switch (instruction) {
         case "GET":
           break;
@@ -123,8 +124,19 @@ export default {
         case "POST":
           break;
         case "CLEAR":
-          let list = $("#bhe_list");
           list.html("");
+          return true;
+        case "HELP":
+          let help =
+            "use the following instruction to switch to the corresponding mode before sending a message <br/>";
+          help += "{{LIST}}: get available users <br/>";
+          help +=
+            "{{GET}}: request to establish a connection with the specific or random user <br/>";
+          help += "{{POST}}: message sending mode <br/>";
+          help += "{{LEAVE}}: disconnect <br/>";
+          help += "{{CLEAR}}: delete history message <br/>";
+          this.system.history = help;
+          this.appendSystemHistory();
           return true;
         default:
           valid = false;
