@@ -1,0 +1,97 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#51A2B6"
+    android:orientation="vertical"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    tools:context=".Login">
+
+    <!-- Include other widget or layout tags here. These are considered
+            "child views" or "children" of the linear layout -->
+    <ImageView
+        android:layout_width="140dp"
+        android:layout_height="140dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="120dp"
+        android:layout_marginBottom="30dp"
+        android:src="@mipmap/ic_launcher" />
+
+    <LinearLayout
+        android:layout_width="280dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="5dp"
+        android:background="#B66D6D"
+        android:orientation="horizontal" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:text="OR"
+        android:textAlignment="center"
+        android:textColor="#ffffff" />
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="280dp"
+        android:layout_height="120dp"
+        android:layout_gravity="center_horizontal"
+        android:background="#70F7CD05"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="0dp"
+        tools:context=".Login">
+
+        <EditText
+            android:id="@+id/bhe_phone"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="5dp"
+            android:background="#FD9797"
+            android:inputType="phone" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="#ffffff" />
+
+        <EditText
+            android:id="@+id/bhe_password"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="10dp"
+            android:background="#FD9797"
+            android:inputType="numberPassword" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/bhe_login"
+        android:layout_width="280dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="0px"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="0px"
+        android:padding="0px"
+        android:text="Login" />
+
+    <TextView
+        android:id="@+id/bhe_signUp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="SIGN UP"
+        android:textAlignment="center"
+        android:textColor="#ff5f5a" />
+
+
+</LinearLayout>
