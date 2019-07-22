@@ -1,6 +1,7 @@
 package com.example.apk;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
@@ -8,7 +9,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import cn.net.bhe.utils.HttpClientUtils;
+import cn.net.bhe.utils.HttpUtils;
 
 public class FrameActivity extends AppCompatActivity {
 
@@ -31,12 +32,14 @@ public class FrameActivity extends AppCompatActivity {
             }
         });
 
-        try {
-            String str = HttpClientUtils.get("https://www.baidu.com/", null);
-            TextView textView = findViewById(R.id.test);
-            textView.setText(str);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        new Thread(() -> {
+            try {
+                String str = HttpUtils.get("https://www.baidu.com/", null).get("body").toString();
+                System.out.println(str);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+
     }
 }
