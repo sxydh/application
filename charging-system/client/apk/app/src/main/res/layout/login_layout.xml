@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
-    tools:context=".Login">
+    tools:context=".LoginActivity">
 
     <!-- Include other widget or layout tags here. These are considered
             "child views" or "children" of the linear layout -->
@@ -43,7 +43,7 @@
         android:gravity="center"
         android:orientation="vertical"
         android:padding="0dp"
-        tools:context=".Login">
+        tools:context=".LoginActivity">
 
         <EditText
             android:id="@+id/bhe_phone"
