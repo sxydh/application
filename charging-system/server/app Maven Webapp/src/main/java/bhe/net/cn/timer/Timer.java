@@ -17,7 +17,7 @@ public class Timer {
     private WalletService walletServie;
     static Logger LOGGER = LoggerFactory.getLogger(Timer.class);
 
-    @Scheduled(fixedDelay = 60 * 1000)
+    @Scheduled(fixedDelay = 30 * 60 * 1000)
     public void unpaidOrderProcess() {
         List<String> ids = walletServie.unpaidOrderIdList();
         for (String id : ids) {
