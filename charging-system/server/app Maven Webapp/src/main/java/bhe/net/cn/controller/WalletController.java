@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +28,7 @@ public class WalletController {
     @Autowired
     private WalletService walletService;
 
-    @RequestMapping(value = "/order/list", method = { RequestMethod.POST }, produces = "text/json;charset=UTF-8")
+    @RequestMapping(value = "/order/list", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String orderList(HttpServletRequest request, @RequestBody Map<String, Object> rq_w) {
         ResponseTemplate rt = new ResponseTemplate();
@@ -46,7 +47,7 @@ public class WalletController {
         return JacksonUtils.objToJsonStr(rt);
     }
 
-    @RequestMapping(value = "/log/list", method = { RequestMethod.POST }, produces = "text/json;charset=UTF-8")
+    @RequestMapping(value = "/log/list", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String logList(HttpServletRequest request, @RequestBody Map<String, Object> rq_w) {
         ResponseTemplate rt = new ResponseTemplate();
@@ -65,7 +66,7 @@ public class WalletController {
         return JacksonUtils.objToJsonStr(rt);
     }
 
-    @RequestMapping(value = "/order/get", method = { RequestMethod.POST }, produces = "text/json;charset=UTF-8")
+    @RequestMapping(value = "/order/get", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String orderGet(HttpServletRequest request, @RequestBody Map<String, Object> rq_w) {
         ResponseTemplate rt = new ResponseTemplate();
@@ -84,7 +85,7 @@ public class WalletController {
         return JacksonUtils.objToJsonStr(rt);
     }
 
-    @RequestMapping(value = "/recharge", method = { RequestMethod.POST }, produces = "text/json;charset=UTF-8")
+    @RequestMapping(value = "/recharge", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String recharge(HttpServletRequest request, @RequestBody Map<String, Object> rq_w) {
         ResponseTemplate rt = new ResponseTemplate();
@@ -103,7 +104,7 @@ public class WalletController {
         return JacksonUtils.objToJsonStr(rt);
     }
 
-    @RequestMapping(value = "/order/cancel", method = { RequestMethod.POST }, produces = "text/json;charset=UTF-8")
+    @RequestMapping(value = "/order/cancel", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String orderCancel(HttpServletRequest request, @RequestBody Map<String, Object> rq_w) {
         ResponseTemplate rt = new ResponseTemplate();
@@ -122,7 +123,7 @@ public class WalletController {
         return JacksonUtils.objToJsonStr(rt);
     }
 
-    @RequestMapping(value = "/get", method = { RequestMethod.GET }, produces = "text/json;charset=UTF-8")
+    @RequestMapping(value = "/get", method = { RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String walletGet(HttpServletRequest request) {
         ResponseTemplate rt = new ResponseTemplate();
@@ -141,7 +142,7 @@ public class WalletController {
         return JacksonUtils.objToJsonStr(rt);
     }
 
-    @RequestMapping(value = "/qr_code/get", method = { RequestMethod.GET }, produces = "text/json;charset=UTF-8")
+    @RequestMapping(value = "/qr_code/get", method = { RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String qrCodeGet(HttpServletRequest request) {
         ResponseTemplate rt = new ResponseTemplate();
@@ -160,7 +161,7 @@ public class WalletController {
         return JacksonUtils.objToJsonStr(rt);
     }
 
-    @RequestMapping(value = "/recharge/callback", method = { RequestMethod.POST }, produces = "text/json;charset=UTF-8")
+    @RequestMapping(value = "/recharge/callback", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String rechargeCallback(HttpServletRequest request, @RequestBody Map<String, Object> rq_w) {
         ResponseTemplate rt = new ResponseTemplate();

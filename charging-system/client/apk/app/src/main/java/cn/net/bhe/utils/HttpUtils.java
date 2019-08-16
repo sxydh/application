@@ -10,19 +10,29 @@ import java.util.Map;
 
 public class HttpUtils {
 
-    public static void main(String[] args) throws Exception {
+    private static final String HOST = "http://192.168.18.239:8080/app";
 
-        System.out.println(HttpUtils.get("https://www.baidu.com/", null));
-
-        /*
-        String jsonStr = "{\"phone\":\"15186942525\",\"password\":\"670b14728ad9902aecba32e22fa4f6bd\"}";
-        System.out.println(HttpUtils.post("http://localhost:8080/user/login", jsonStr));
-        */
-
+    public static void main(String[] args) {
+        String result = null;
+        try {
+            Map<String, Object> map = HttpUtils.post(
+                    "/user/login",
+                    "{"
+                            + "\"phone\": \"15186942525\","
+                            + "\"password\": \"670b14728ad9902aecba32e22fa4f6bd\","
+                            + "\"type\": 2"
+                            + "}");
+            result = JacksonUtils.objToJsonStr(map.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println(result);
     }
 
     // HTTP GET request
     public static Map<String, Object> get(String url, Map<String, String> paramMap) throws Exception {
+        System.out.println(HOST + url + ", " + paramMap.toString());
+
         Map<String, Object> response = new HashMap<>();
 
         String params = "";
@@ -33,7 +43,7 @@ public class HttpUtils {
             params = "?" + params.substring(1);
         }
 
-        URL obj = new URL(url + params);
+        URL obj = new URL(HOST + url + params);
         HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
 
         // optional default is GET
@@ -59,9 +69,11 @@ public class HttpUtils {
 
     // HTTP POST request
     public static Map<String, Object> post(String url, String jsonStr) throws Exception {
+        System.out.println(HOST + url + ", " + jsonStr);
+
         Map<String, Object> response = new HashMap<>();
 
-        URL obj = new URL(url);
+        URL obj = new URL(HOST + url);
         HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
 
         conn.setRequestMethod("POST");

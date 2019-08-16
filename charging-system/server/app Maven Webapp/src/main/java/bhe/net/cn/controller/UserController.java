@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,7 +31,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @RequestMapping(value = "/login", method = { RequestMethod.POST }, produces = "text/json;charset=UTF-8")
+    @RequestMapping(value = "/login", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String login(HttpServletRequest request, @RequestBody Map<String, Object> rq_u) {
         ResponseTemplate rt = new ResponseTemplate();
@@ -49,7 +50,7 @@ public class UserController {
         return JacksonUtils.objToJsonStr(rt);
     }
 
-    @RequestMapping(value = "/node/list", method = { RequestMethod.GET }, produces = "text/json;charset=UTF-8")
+    @RequestMapping(value = "/node/list", method = { RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String nodeList(HttpServletRequest request) {
         ResponseTemplate rt = new ResponseTemplate();
@@ -68,7 +69,7 @@ public class UserController {
         return JacksonUtils.objToJsonStr(rt);
     }
 
-    @RequestMapping(value = "/dycode/get", method = { RequestMethod.GET }, produces = "text/json;charset=UTF-8")
+    @RequestMapping(value = "/dycode/get", method = { RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String dycodeSend(HttpServletRequest request, @RequestParam String phone) {
         ResponseTemplate rt = new ResponseTemplate();
@@ -87,7 +88,7 @@ public class UserController {
         return JacksonUtils.objToJsonStr(rt);
     }
 
-    @RequestMapping(value = "/password/reset", method = { RequestMethod.POST }, produces = "text/json;charset=UTF-8")
+    @RequestMapping(value = "/password/reset", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String pwdReset(HttpServletRequest request, @RequestBody Map<String, Object> rq_u) {
         ResponseTemplate rt = new ResponseTemplate();
@@ -159,7 +160,7 @@ public class UserController {
         return JacksonUtils.objToJsonStr(rt);
     }
 
-    @RequestMapping(value = "/auth", method = { RequestMethod.GET }, produces = "text/json;charset=UTF-8")
+    @RequestMapping(value = "/auth", method = { RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String auth(HttpServletRequest request) {
         ResponseTemplate rt = new ResponseTemplate();

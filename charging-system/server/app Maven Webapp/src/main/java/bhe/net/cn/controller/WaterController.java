@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,10 +26,10 @@ public class WaterController {
 
     static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
-    @Autowired
+    @Autowired 
     private WaterService waterService;
 
-    @RequestMapping(value = "/log/list", method = { RequestMethod.POST }, produces = "text/json;charset=UTF-8")
+    @RequestMapping(value = "/log/list", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String logList(HttpServletRequest request, @RequestBody Map<String, Object> rq_w) {
         ResponseTemplate rt = new ResponseTemplate();
@@ -47,7 +48,7 @@ public class WaterController {
         return JacksonUtils.objToJsonStr(rt);
     }
 
-    @RequestMapping(value = "/get", method = { RequestMethod.GET }, produces = "text/json;charset=UTF-8")
+    @RequestMapping(value = "/get", method = { RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String waterGet(HttpServletRequest request) {
         ResponseTemplate rt = new ResponseTemplate();
