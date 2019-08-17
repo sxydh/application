@@ -8,62 +8,37 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import bhe.net.cn.base.ResponseTemplate;
-import bhe.net.cn.dict.Note;
-import bhe.net.cn.exception.NoteException;
+import bhe.net.cn.base.Rt;
 import bhe.net.cn.service.WaterService;
-import bhe.net.cn.utils.JacksonUtils;
 
-@Controller
+@RestController
 @RequestMapping(value = "/water")
 public class WaterController {
 
     static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
-    @Autowired 
+    @Autowired
     private WaterService waterService;
 
     @RequestMapping(value = "/log/list", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String logList(HttpServletRequest request, @RequestBody Map<String, Object> rq_w) {
-        ResponseTemplate rt = new ResponseTemplate();
-        try {
-            rt.setData(waterService.logList(request, rq_w));
-            rt.setSc(Note.SC_OK);
-        } catch (NoteException e) {
-            rt.setSc(Note.SC_BADREQUEST);
-            rt.setMsg(e.getLocalizedMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-            LOGGER.error(e.getLocalizedMessage());
-            rt.setSc(Note.SC_INNERERROR);
-            rt.setMsg(Note.MSG_INNERERROR);
-        }
-        return JacksonUtils.objToJsonStr(rt);
+    public Object logList(HttpServletRequest request, @RequestBody Map<String, Object> rq_w) {
+        Rt rt = Rt.suc();
+        rt.setData(waterService.logList(request, rq_w));
+        return rt;
     }
 
     @RequestMapping(value = "/get", method = { RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String waterGet(HttpServletRequest request) {
-        ResponseTemplate rt = new ResponseTemplate();
-        try {
-            rt.setData(waterService.waterGet(request));
-            rt.setSc(Note.SC_OK);
-        } catch (NoteException e) {
-            rt.setSc(Note.SC_BADREQUEST);
-            rt.setMsg(e.getLocalizedMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-            LOGGER.error(e.getLocalizedMessage());
-            rt.setSc(Note.SC_INNERERROR);
-            rt.setMsg(Note.MSG_INNERERROR);
-        }
-        return JacksonUtils.objToJsonStr(rt);
+    public Object waterGet(HttpServletRequest request) {
+        Rt rt = Rt.suc();
+        rt.setData(waterService.waterGet(request));
+        return rt;
     }
 }

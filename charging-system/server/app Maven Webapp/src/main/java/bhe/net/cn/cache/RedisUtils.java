@@ -1,14 +1,13 @@
-package bhe.net.cn.auth;
+package bhe.net.cn.cache;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import bhe.net.cn.dict.Const;
+import bhe.net.cn.dict.Prop;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -23,19 +22,14 @@ public enum RedisUtils {
     private static JedisPool jedisPool;
     static {
         try {
-            Properties prop = new Properties();
-            prop.load(RedisUtils.class.getClassLoader().getResourceAsStream("database.properties"));
-            @SuppressWarnings({ "unchecked", "rawtypes" })
-            Map<String, String> map = new HashMap(prop);
-            //
             JedisPoolConfig config = new JedisPoolConfig();
-            config.setMaxTotal(Integer.parseInt(map.get("redis.max.total")));
-            config.setMaxIdle(Integer.parseInt(map.get("redis.max.idle")));
-            config.setMaxWaitMillis(Integer.parseInt(map.get("redis.max.wait")));
-            config.setTestOnBorrow(Boolean.valueOf(map.get("redis.test.on.borrow")));
-            jedisPool = new JedisPool(config, map.get("redis.host"), Integer.parseInt(map.get("redis.port")), 10000000, map.get("redis.password"));
+            config.setMaxTotal(Prop.REDIS_MAX_TOTAL);
+            config.setMaxIdle(Prop.REDIS_MAX_IDLE);
+            config.setMaxWaitMillis(Prop.REDIS_MAX_WAIT);
+            config.setTestOnBorrow(Prop.REDIS_TEST_ON_BORROW);
+            jedisPool = new JedisPool(config, Prop.REDIS_HOST, Prop.REDIS_PORT, 10000000, Prop.REDIS_PASSWORD);
         } catch (Exception e) {
-            LOGGER.error(e.getLocalizedMessage());
+            LOGGER.error(Const.LOGGER_TAG_ERR_SERVER, e);
         }
     }
 

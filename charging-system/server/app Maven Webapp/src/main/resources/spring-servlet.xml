@@ -17,7 +17,7 @@
     <mvc:interceptors> 
         <mvc:interceptor>
             <mvc:mapping path="/**" />
-            <bean class="bhe.net.cn.interceptor.VerifyInterceptor">
+            <bean class="bhe.net.cn.interceptor.AuthCheckInterceptor">
             </bean>
         </mvc:interceptor>
     </mvc:interceptors>

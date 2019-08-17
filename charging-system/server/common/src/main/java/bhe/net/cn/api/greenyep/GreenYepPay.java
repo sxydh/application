@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import bhe.net.cn.exception.NoteException;
+import bhe.net.cn.exception.BusinessException;
 import bhe.net.cn.utils.HttpClientUtils;
 import bhe.net.cn.utils.JacksonUtils;
 
@@ -57,7 +57,7 @@ public class GreenYepPay {
         LOGGER.info(jsonStr);
         JsonNode node = JacksonUtils.readTree(jsonStr);
         if (Arrays.asList(new String[] { "400" }).contains(node.findValue("code").toString())) {
-            throw new NoteException("Payment amount is too low !");
+            throw new BusinessException("Payment amount is too low !");
         }
         GYPResponse gypresponse = JacksonUtils.jsonStrToObj(node.findValue("content").toString(), GYPResponse.class);
         return gypresponse;

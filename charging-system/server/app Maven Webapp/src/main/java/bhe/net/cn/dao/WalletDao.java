@@ -9,7 +9,6 @@ import org.hibernate.transform.Transformers;
 import org.hibernate.type.StandardBasicTypes;
 import org.springframework.stereotype.Repository;
 
-import bhe.net.cn.base.BaseDao;
 import bhe.net.cn.base.Page;
 import bhe.net.cn.entity.Order;
 import bhe.net.cn.entity.Wallet;

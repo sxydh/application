@@ -16,21 +16,21 @@ server:
             timeout: 7200
 spring:
     datasource:
-        password: ******
+        password: 20190627
         type: com.alibaba.druid.pool.DruidDataSource
-        url: jdbc:mysql://******:3306/******
-        username: ******
+        url: jdbc:mysql://www.bhe.net.cn:3306/charging_system
+        username: keep
     devtools:
         restart:
             enabled: true
     redis:
-        host: ******
+        host: www.bhe.net.cn
         jedis:
             pool:
                 max-active: 200
                 max-idle: 50
                 max-wait: -1
                 min-idle: 0
-        password: ******
+        password: 20190627
         port: 6379
         timeout: 1000000

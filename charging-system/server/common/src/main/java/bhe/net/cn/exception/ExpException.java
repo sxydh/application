@@ -1,10 +1,10 @@
 package bhe.net.cn.exception;
 
-public class AuthException extends RuntimeException {
+public class ExpException extends RuntimeException {
 
     private static final long serialVersionUID = -7930084416644014920L;
 
-    public AuthException(String message) {
+    public ExpException(String message) {
         super(message);
     }
 }

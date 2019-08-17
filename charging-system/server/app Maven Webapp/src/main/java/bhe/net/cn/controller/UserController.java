@@ -8,22 +8,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import bhe.net.cn.auth.SessionUtils;
-import bhe.net.cn.base.ResponseTemplate;
-import bhe.net.cn.dict.Note;
-import bhe.net.cn.exception.AuthException;
-import bhe.net.cn.exception.NoteException;
+import bhe.net.cn.base.Rt;
+import bhe.net.cn.cache.SessionUtils;
 import bhe.net.cn.service.UserService;
-import bhe.net.cn.utils.JacksonUtils;
 
-@Controller
+@RestController
 @RequestMapping(value = "/user")
 public class UserController {
 
@@ -33,146 +29,63 @@ public class UserController {
 
     @RequestMapping(value = "/login", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String login(HttpServletRequest request, @RequestBody Map<String, Object> rq_u) {
-        ResponseTemplate rt = new ResponseTemplate();
-        try {
-            rt.setSc(Note.SC_OK);
-            rt.setData(userService.login(request, rq_u));
-        } catch (NoteException e) {
-            rt.setSc(Note.SC_BADREQUEST);
-            rt.setMsg(e.getLocalizedMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-            LOGGER.error(e.getLocalizedMessage());
-            rt.setSc(Note.SC_INNERERROR);
-            rt.setMsg(Note.MSG_INNERERROR);
-        }
-        return JacksonUtils.objToJsonStr(rt);
+    public Object login(HttpServletRequest request, @RequestBody Map<String, Object> rq_u) {
+        Rt rt = Rt.suc();
+        rt.setData(userService.login(request, rq_u));
+        return rt;
     }
 
     @RequestMapping(value = "/node/list", method = { RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String nodeList(HttpServletRequest request) {
-        ResponseTemplate rt = new ResponseTemplate();
-        try {
-            rt.setData(userService.nodeList());
-            rt.setSc(Note.SC_OK);
-        } catch (NoteException e) {
-            rt.setSc(Note.SC_BADREQUEST);
-            rt.setMsg(e.getLocalizedMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-            LOGGER.error(e.getLocalizedMessage());
-            rt.setSc(Note.SC_INNERERROR);
-            rt.setMsg(Note.MSG_INNERERROR);
-        }
-        return JacksonUtils.objToJsonStr(rt);
+    public Object nodeList(HttpServletRequest request) {
+        Rt rt = Rt.suc();
+        rt.setData(userService.nodeList());
+        return rt;
     }
 
     @RequestMapping(value = "/dycode/get", method = { RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String dycodeSend(HttpServletRequest request, @RequestParam String phone) {
-        ResponseTemplate rt = new ResponseTemplate();
-        try {
-            userService.dycodeSend(phone);
-            rt.setSc(Note.SC_OK);
-        } catch (NoteException e) {
-            rt.setSc(Note.SC_BADREQUEST);
-            rt.setMsg(e.getLocalizedMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-            LOGGER.error(e.getLocalizedMessage());
-            rt.setSc(Note.SC_INNERERROR);
-            rt.setMsg(Note.MSG_INNERERROR);
-        }
-        return JacksonUtils.objToJsonStr(rt);
+    public Object dycodeSend(HttpServletRequest request, @RequestParam String phone) throws Exception {
+        Rt rt = Rt.suc();
+        userService.dycodeSend(phone);
+        return rt;
     }
 
     @RequestMapping(value = "/password/reset", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String pwdReset(HttpServletRequest request, @RequestBody Map<String, Object> rq_u) {
-        ResponseTemplate rt = new ResponseTemplate();
-        try {
-            userService.pwdReset(request, rq_u);
-            rt.setSc(Note.SC_OK);
-        } catch (NoteException e) {
-            rt.setSc(Note.SC_BADREQUEST);
-            rt.setMsg(e.getLocalizedMessage());
-        } catch (AuthException e) {
-            rt.setSc(Note.SC_UNAUTHORIZED);
-            rt.setMsg(Note.MSG_UNAUTHORIZED);
-        } catch (Exception e) {
-            e.printStackTrace();
-            LOGGER.error(e.getLocalizedMessage());
-            rt.setSc(Note.SC_INNERERROR);
-            rt.setMsg(Note.MSG_INNERERROR);
-        }
-        return JacksonUtils.objToJsonStr(rt);
+    public Object pwdReset(HttpServletRequest request, @RequestBody Map<String, Object> rq_u) throws Exception {
+        Rt rt = Rt.suc();
+        userService.pwdReset(request, rq_u);
+        return rt;
     }
 
-    @RequestMapping(value = "/register", method = { RequestMethod.POST }, produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/register", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String register(HttpServletRequest request, @RequestBody Map<String, Object> rq_u) {
-        ResponseTemplate rt = new ResponseTemplate();
-        try {
-            throw new NoteException("Registration is not currently available");
-        } catch (NoteException e) {
-            rt.setSc(Note.SC_BADREQUEST);
-            rt.setMsg(e.getLocalizedMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-            LOGGER.error(e.getLocalizedMessage());
-            rt.setSc(Note.SC_INNERERROR);
-            rt.setMsg(Note.MSG_INNERERROR);
-        }
-        return JacksonUtils.objToJsonStr(rt);
+    public Object register(HttpServletRequest request, @RequestBody Map<String, Object> rq_u) {
+        throw new RuntimeException("Registration is not currently available");
     }
 
-    @RequestMapping(value = "/logout", method = { RequestMethod.POST }, produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/logout", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String logout(HttpServletRequest request) {
-        ResponseTemplate rt = new ResponseTemplate();
-        try {
-            SessionUtils.invalidate(request);
-            rt.setSc(Note.SC_OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            LOGGER.error(e.getLocalizedMessage());
-            rt.setSc(Note.SC_INNERERROR);
-            rt.setMsg(Note.MSG_INNERERROR);
-        }
-        return JacksonUtils.objToJsonStr(rt);
+    public Object logout(HttpServletRequest request) {
+        Rt rt = Rt.suc();
+        SessionUtils.invalidate(request);
+        return rt;
     }
 
-    @RequestMapping(value = "/update", method = { RequestMethod.POST }, produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/update", method = { RequestMethod.POST }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String update(HttpServletRequest request, @RequestBody Map<String, Object> rq_u) {
-        ResponseTemplate rt = new ResponseTemplate();
-        try {
-            userService.update(request, rq_u);
-            rt.setSc(Note.SC_OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            LOGGER.error(e.getLocalizedMessage());
-            rt.setSc(Note.SC_INNERERROR);
-            rt.setMsg(Note.MSG_INNERERROR);
-        }
-        return JacksonUtils.objToJsonStr(rt);
+    public Object update(HttpServletRequest request, @RequestBody Map<String, Object> rq_u) {
+        Rt rt = Rt.suc();
+        userService.update(request, rq_u);
+        return rt;
     }
 
     @RequestMapping(value = "/auth", method = { RequestMethod.GET }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String auth(HttpServletRequest request) {
-        ResponseTemplate rt = new ResponseTemplate();
-        try {
-            rt.setSc(Note.SC_OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            LOGGER.error(e.getLocalizedMessage());
-            rt.setSc(Note.SC_INNERERROR);
-            rt.setMsg(Note.MSG_INNERERROR);
-        }
-        return JacksonUtils.objToJsonStr(rt);
+    public Object auth(HttpServletRequest request) {
+        Rt rt = Rt.suc();
+        return rt;
     }
 
 }

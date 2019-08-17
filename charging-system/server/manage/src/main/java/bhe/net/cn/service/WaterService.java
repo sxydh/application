@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 import bhe.net.cn.base.Page;
 import bhe.net.cn.base.SessionUtils;
-import bhe.net.cn.exception.NoteException;
+import bhe.net.cn.exception.BusinessException;
 import bhe.net.cn.mapper.WaterMapper;
 
 @Service
@@ -28,7 +28,7 @@ public class WaterService {
         valid.add(offset != null);
         valid.add(limit != null);
         if (valid.contains(false)) {
-            throw new NoteException("invalid arguments");
+            throw new BusinessException("invalid arguments");
         }
 
         //

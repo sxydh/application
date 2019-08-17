@@ -17,9 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import bhe.net.cn.base.HelperUtils;
 import bhe.net.cn.base.Page;
 import bhe.net.cn.base.SessionUtils;
-import bhe.net.cn.dict.Note;
-import bhe.net.cn.exception.AuthException;
-import bhe.net.cn.exception.NoteException;
+import bhe.net.cn.exception.BusinessException;
+import bhe.net.cn.exception.ExpException;
 import bhe.net.cn.mapper.UserMapper;
 import bhe.net.cn.utils.MathUtils;
 
@@ -40,20 +39,20 @@ public class UserService {
         valid.add(StringUtils.isNotEmpty(phone));
         valid.add(StringUtils.isNotEmpty(password));
         if (valid.contains(false)) {
-            throw new NoteException("invalid arguments");
+            throw new BusinessException("invalid arguments");
         }
         //
 
         Map<String, Object> user = userMapper.login(rq_u);
 
         if (user == null) {
-            throw new NoteException("user doesn't exist");
+            throw new BusinessException("user doesn't exist");
         }
         if (!password.equals(user.get("password"))) {
-            throw new NoteException("wrong password");
+            throw new BusinessException("wrong password");
         }
         if (((BigDecimal) user.get("status")).intValue() == 0) {
-            throw new NoteException("user is disabled");
+            throw new BusinessException("user is disabled");
         }
 
         String ip = session.getIp();
@@ -80,7 +79,7 @@ public class UserService {
         Map<String, Object> user = userMapper.userCheckoutByPhone(phone);
 
         if (user == null) {
-            throw new NoteException("user doesn't exist");
+            throw new BusinessException("user doesn't exist");
         }
 
         session.dySms(phone);
@@ -94,7 +93,7 @@ public class UserService {
         valid.add(StringUtils.isNotEmpty(phone));
         valid.add(StringUtils.isNotEmpty(password));
         if (valid.contains(false)) {
-            throw new NoteException("invalid arguments");
+            throw new BusinessException("invalid arguments");
         }
         //
 
@@ -104,22 +103,22 @@ public class UserService {
         if (StringUtils.isNotEmpty(dycode)) {
             int check = session.validCode(phone, dycode);
             if (check == -1 || check == 2) {
-                throw new NoteException("verification code expired, please reacquire");
+                throw new BusinessException("verification code expired, please reacquire");
             }
             if (check == 0) {
-                throw new NoteException("wrong verification code");
+                throw new BusinessException("wrong verification code");
             }
         } else if (StringUtils.isNotEmpty(oldPassword)) {
             Map<String, Object> cachedUser = session.getCurUser();
             if (cachedUser == null) {
-                throw new AuthException(Note.NEED_RELOGIN);
+                throw new ExpException("");
             }
             if (!oldPassword.equals(cachedUser.get("password"))) {
-                throw new NoteException("wrong old password");
+                throw new BusinessException("wrong old password");
             }
             phone = (String) cachedUser.get("phone");
         } else {
-            throw new NoteException("require dycode or old password");
+            throw new BusinessException("require dycode or old password");
         }
         userMapper.pwdReset(phone, password);
     }
@@ -145,7 +144,7 @@ public class UserService {
         valid.add(offset != null);
         valid.add(limit != null);
         if (valid.contains(false)) {
-            throw new NoteException("invalid arguments");
+            throw new BusinessException("invalid arguments");
         }
 
         Map<String, Object> cachedUser = session.getCurUser();
@@ -173,7 +172,7 @@ public class UserService {
         List<Boolean> valid = new ArrayList<>();
         valid.add(id != null);
         if (valid.contains(false)) {
-            throw new NoteException("invalid arguments");
+            throw new BusinessException("invalid arguments");
         }
 
         rq_u.put("ip", session.getIp());
@@ -189,7 +188,7 @@ public class UserService {
         valid.add(curRole == 0 && oldType == 2);
         valid.add(curRole != 0 && oldType == 2);
         if (!valid.contains(true)) {
-            throw new NoteException("invalid operation");
+            throw new BusinessException("invalid operation");
         }
 
         Integer tarRole = (Integer) rq_u.get("role");
@@ -198,20 +197,20 @@ public class UserService {
             valid.add(curRole == 0 && oldType == 2);
             valid.add(curRole != 0 && oldType == 2);
             if (!valid.contains(true)) {
-                throw new NoteException("invalid operation");
+                throw new BusinessException("invalid operation");
             }
         }
 
         String phone = (String) rq_u.get("phone");
         if (StringUtils.isNotEmpty(phone) && userMapper.phoneCheck(rq_u) != null) {
-            throw new NoteException("The phone number already exists");
+            throw new BusinessException("The phone number already exists");
         }
 
         userMapper.subUpdate(rq_u);
 
         Integer nodeId = (Integer) rq_u.get("nodeId");
         if (nodeId != null && userMapper.nodeGet(nodeId) == null) {
-            throw new NoteException("node doesn't exist!");
+            throw new BusinessException("node doesn't exist!");
         }
         if (nodeId != null) {
             userMapper.userRefNodeDel(id);
@@ -237,7 +236,7 @@ public class UserService {
         valid.add(role != null);
         valid.add(nodeId != null);
         if (valid.contains(false)) {
-            throw new NoteException("invalid arguments");
+            throw new BusinessException("invalid arguments");
         }
 
         rq_u.put("ip", session.getIp());
@@ -251,19 +250,19 @@ public class UserService {
         valid.add(curRole == 0 && type == 2);
         valid.add(curRole != 0 && type == 2);
         if (!valid.contains(true)) {
-            throw new NoteException("invalid operation");
+            throw new BusinessException("invalid operation");
         }
 
         // user
         if (userMapper.phoneCheck(rq_u) != null) {
-            throw new NoteException("The phone number already exists");
+            throw new BusinessException("The phone number already exists");
         }
         userMapper.subAdd(rq_u);
         int userId = ((BigInteger) rq_u.get("id")).intValue();
 
         // user ref node
         if (userMapper.nodeGet(nodeId) == null) {
-            throw new NoteException("node doesn't exist!");
+            throw new BusinessException("node doesn't exist!");
         }
         userMapper.userRefNodeAdd(userId, nodeId);
 

@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import bhe.net.cn.dict.Const;
 import bhe.net.cn.utils.SerializeUtils;
 
 @Component
@@ -24,7 +25,7 @@ public class Logging {
 
     @Before(value = "pointcut()")
     public void before(JoinPoint joinPoint) throws Throwable {
-        String log = joinPoint.toString() + "\n";
+        String log = joinPoint.toString() + "\r\n";
 
         Object[] args = joinPoint.getArgs();
         CodeSignature codeSignature = (CodeSignature) joinPoint.getSignature();
@@ -34,21 +35,24 @@ public class Logging {
             if (args[i] instanceof byte[]) {
                 value = SerializeUtils.deserialize((byte[]) args[i]);
             }
-            log += name + ": " + value + "\n";
+            log += name + ": " + value;
+            if (i + 1 < args.length) {
+                log += "\r\n";
+            }
         }
 
-        LOGGER.info("\n\n" + log);
+        LOGGER.info(Const.LOGGER_FORMAT_INFO, log);
     }
 
     @AfterReturning(value = "pointcut()", returning = "returnVal")
-    public void afterReturning(Object returnVal) throws Throwable {
-        String log = "";
+    public void afterReturning(JoinPoint joinPoint, Object returnVal) throws Throwable {
+        String log = joinPoint.toString() + "\r\n";
         if (returnVal instanceof byte[]) {
             log += SerializeUtils.deserialize((byte[]) returnVal);
         } else {
             log += returnVal;
         }
-        System.out.println("afterReturning: \n" + log + "\n");
+        LOGGER.info(Const.LOGGER_FORMAT_INFO, log);
     }
 
 }

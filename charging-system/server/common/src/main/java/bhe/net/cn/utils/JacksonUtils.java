@@ -7,11 +7,14 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 public enum JacksonUtils {
     ;
@@ -20,6 +23,9 @@ public enum JacksonUtils {
     private static ObjectMapper objectMapper = new ObjectMapper();
     static {
         objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        objectMapper.setSerializationInclusion(Include.NON_NULL);
     }
 
     public static void main(String[] args) throws JsonProcessingException {
@@ -27,14 +33,12 @@ public enum JacksonUtils {
     }
 
     public static String objToJsonStr(Object obj) {
-        String str = "";
         try {
-            str = objectMapper.writeValueAsString(obj);
-        } catch (Exception e) {
-            str = e.getLocalizedMessage();
+            return objectMapper.writeValueAsString(obj);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return null;
         }
-        LOGGER.info(str);
-        return str;
     }
 
     public static <X> X jsonStrToObj(String content, Class<X> valueType) throws JsonParseException, JsonMappingException, IOException {
@@ -47,6 +51,14 @@ public enum JacksonUtils {
 
     public static JsonNode readTree(String jsonStr) throws IOException {
         return objectMapper.readTree(jsonStr);
+    }
+
+    public static String pretty(String str) {
+        try {
+            return objToJsonStr(readTree(str));
+        } catch (Exception e) {
+            return str;
+        }
     }
 }
 

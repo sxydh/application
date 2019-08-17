@@ -1,4 +1,4 @@
-package bhe.net.cn.base;
+package bhe.net.cn.dao;
 
 import java.io.Serializable;
 import java.math.BigInteger;
@@ -13,6 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import bhe.net.cn.base.HelperUtils;
+import bhe.net.cn.base.Page;
 
 @Repository
 public class BaseDao {
@@ -59,8 +62,6 @@ public class BaseDao {
     public <X> X handle(X x) {
 
         if (x != null) {
-            LOGGER.info(x.getClass().toString());
-            LOGGER.info(x.toString());
 
             if (x instanceof Map<?, ?>) {
                 return (X) HelperUtils.lowercaseKey((Map<String, Object>) x);

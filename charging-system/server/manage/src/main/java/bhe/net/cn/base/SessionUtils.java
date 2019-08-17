@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import bhe.net.cn.dict.Constant;
-import bhe.net.cn.dict.RedisKey;
-import bhe.net.cn.filter.PreprocessFilter;
+import bhe.net.cn.dict.Const;
+import bhe.net.cn.dict.K;
+import bhe.net.cn.filter.AttrFilter;
 import bhe.net.cn.utils.MD5Utils;
 import bhe.net.cn.utils.MathUtils;
 import bhe.net.cn.utils.SerializeUtils;
@@ -36,7 +36,7 @@ public class SessionUtils {
     private long time;
 
     public int validCode(String phone, String code) throws Exception {
-        String key = MD5Utils.toLowerStr(RedisKey.CS_MG_DYCODE.toString());
+        String key = MD5Utils.toLowerStr(K.DYCODE_MG.toString());
         String field = MD5Utils.toLowerStr(phone);
 
         String value = (String) redis.get(key, field);
@@ -53,7 +53,7 @@ public class SessionUtils {
         }
 
         long interval = (System.currentTimeMillis() - startTime) / 1000;
-        if (interval > Constant.DYCODE_KEEP_TIME) {
+        if (interval > Const.DYCODE_KEEP_TIME) {
             return 2;
         }
 
@@ -66,7 +66,7 @@ public class SessionUtils {
 
         // AlicomDysms.sendSms(phone, dycode);
 
-        String key = MD5Utils.toLowerStr(RedisKey.CS_MG_DYCODE.toString());
+        String key = MD5Utils.toLowerStr(K.DYCODE_MG.toString());
         String field = MD5Utils.toLowerStr(phone);
         String value = dycode + "," + System.currentTimeMillis();
         redis.put(key, field, value);
@@ -126,7 +126,7 @@ public class SessionUtils {
     }
 
     public String getIp() {
-        return PreprocessFilter.getClientIpAddr(request);
+        return AttrFilter.getClientIpAddr(request);
     }
 
 }

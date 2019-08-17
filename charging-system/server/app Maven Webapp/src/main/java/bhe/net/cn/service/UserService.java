@@ -16,16 +16,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import bhe.net.cn.auth.SessionKey;
-import bhe.net.cn.auth.SessionUtils;
+import bhe.net.cn.cache.SessionUtils;
 import bhe.net.cn.dao.UserDao;
-import bhe.net.cn.dict.Note;
+import bhe.net.cn.dict.K;
 import bhe.net.cn.entity.User;
 import bhe.net.cn.entity.UserRefNode;
 import bhe.net.cn.entity.Wallet;
 import bhe.net.cn.entity.Water;
-import bhe.net.cn.exception.AuthException;
-import bhe.net.cn.exception.NoteException;
+import bhe.net.cn.exception.BusinessException;
+import bhe.net.cn.exception.ExpException;
 import bhe.net.cn.utils.MathUtils;
 
 @Service
@@ -46,20 +45,20 @@ public class UserService {
         valid.add(StringUtils.isNotEmpty(phone));
         valid.add(StringUtils.isNotEmpty(password));
         if (valid.contains(false)) {
-            throw new NoteException("invalid parameter");
+            throw new BusinessException("invalid parameter");
         }
         //
 
         Map<String, Object> user = userDao.userGet(type, phone);
         if (user == null) {
-            throw new NoteException("user does not exist");
+            throw new BusinessException("user does not exist");
         }
         int status = ((BigDecimal) user.get("status")).intValue();
         if (status != 1) {
-            throw new NoteException("user not available");
+            throw new BusinessException("user not available");
         }
         if (!password.equals(user.get("password"))) {
-            throw new NoteException("wrong password");
+            throw new BusinessException("wrong password");
         }
 
         // update ip
@@ -67,9 +66,9 @@ public class UserService {
         userDao.updateIp(user);
 
         // update session
-        SessionUtils.set(request, SessionKey.IP, SessionUtils.getIp(request));
-        SessionUtils.set(request, SessionKey.USERID, user.get("id"));
-        SessionUtils.set(request, SessionKey.USER, user);
+        SessionUtils.set(request, K.S_IP, SessionUtils.getIp(request));
+        SessionUtils.set(request, K.S_USERID, user.get("id"));
+        SessionUtils.set(request, K.S_USER, user);
 
         Map<String, Object> result = new HashMap<>();
         user = new HashMap<>(user);
@@ -89,7 +88,7 @@ public class UserService {
         valid.add(StringUtils.isNotEmpty(phone));
         valid.add(StringUtils.isNotEmpty(password));
         if (valid.contains(false)) {
-            throw new NoteException("invalid parameter");
+            throw new BusinessException("invalid parameter");
         }
         //
 
@@ -98,22 +97,22 @@ public class UserService {
         if (StringUtils.isNotEmpty(dycode)) {
             int check = SessionUtils.validCode(phone, dycode);
             if (check == -1 || check == 2) {
-                throw new NoteException("verification code expired, please reacquire");
+                throw new BusinessException("verification code expired, please reacquire");
             }
             if (check == 0) {
-                throw new NoteException("wrong verification code");
+                throw new BusinessException("wrong verification code");
             }
         } else if (StringUtils.isNotEmpty(oldPassword)) {
-            Map<String, Object> cachedUser = SessionUtils.get(request, SessionKey.USER);
+            Map<String, Object> cachedUser = SessionUtils.get(request, K.S_USER);
             if (cachedUser == null) {
-                throw new AuthException(Note.NEED_RELOGIN);
+                throw new ExpException("");
             }
             if (!oldPassword.equals(cachedUser.get("password"))) {
-                throw new NoteException("wrong old password");
+                throw new BusinessException("wrong old password");
             }
             phone = (String) cachedUser.get("phone");
         } else {
-            throw new NoteException("require dycode or old password");
+            throw new BusinessException("require dycode or old password");
         }
         userDao.pwdReset(password, phone);
     }
@@ -125,7 +124,7 @@ public class UserService {
     public void dycodeSend(String phone) throws Exception {
         Map<String, Object> user = userDao.userGet(2, phone);
         if (user == null) {
-            throw new NoteException("user doesn't exist");
+            throw new BusinessException("user doesn't exist");
         }
 
         SessionUtils.dySms(phone);
@@ -142,20 +141,20 @@ public class UserService {
         valid.add(StringUtils.isNotEmpty(password));
         valid.add(nodeId != null);
         if (valid.contains(false)) {
-            throw new NoteException("invalid parameter");
+            throw new BusinessException("invalid parameter");
         }
         nodeService.nodeCheck(nodeId);
         //
 
         int check = SessionUtils.validCode(phone, dycode);
         if (check == -1 || check == 2) {
-            throw new NoteException("verification code expired, please reacquire");
+            throw new BusinessException("verification code expired, please reacquire");
         }
         if (check == 0) {
-            throw new NoteException("wrong verification code");
+            throw new BusinessException("wrong verification code");
         }
         if (userDao.userCheckoutByPhone(phone) != null) {
-            throw new NoteException("the phone has been registered");
+            throw new BusinessException("the phone has been registered");
         }
 
         // user
@@ -195,7 +194,7 @@ public class UserService {
     }
 
     public void update(HttpServletRequest request, Map<String, Object> rq_u) {
-        Map<String, Object> cachedUser = SessionUtils.get(request, SessionKey.USER);
+        Map<String, Object> cachedUser = SessionUtils.get(request, K.S_USER);
         User user = userDao.getById(User.class, ((BigInteger) cachedUser.get("id")).intValue());
 
         rq_u.put("ip", SessionUtils.getIp(request));

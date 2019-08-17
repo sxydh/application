@@ -5,8 +5,6 @@ import java.util.Map;
 import org.hibernate.transform.Transformers;
 import org.springframework.stereotype.Repository;
 
-import bhe.net.cn.base.BaseDao;
-
 @Repository
 public class NodeDao extends BaseDao {
 

@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import bhe.net.cn.base.HelperUtils;
 import bhe.net.cn.base.Page;
 import bhe.net.cn.base.SessionUtils;
-import bhe.net.cn.exception.NoteException;
+import bhe.net.cn.exception.BusinessException;
 import bhe.net.cn.mapper.WalletMapper;
 
 @Service
@@ -34,7 +34,7 @@ public class WalletService {
         valid.add(offset != null);
         valid.add(limit != null);
         if (valid.contains(false)) {
-            throw new NoteException("invalid arguments");
+            throw new BusinessException("invalid arguments");
         }
 
         Map<String, Object> cachedUser = session.getCurUser();
@@ -59,7 +59,7 @@ public class WalletService {
         valid.add(StringUtils.isNotEmpty(walletNum));
         valid.add(value != null && value > 0);
         if (valid.contains(false)) {
-            throw new NoteException("invalid arguments");
+            throw new BusinessException("invalid arguments");
         }
 
         Map<String, Object> curUser = session.getCurUser();
@@ -68,19 +68,19 @@ public class WalletService {
         //
 
         if (!Arrays.asList(new Integer[] { 0, 1 }).contains(curRole)) {
-            throw new NoteException("invalid operation");
+            throw new BusinessException("invalid operation");
         }
 
         Map<String, Object> oldWallet = walletMapper.walletCheckoutByNumForUpdate(walletNum);
         if (oldWallet == null) {
-            throw new NoteException("wrong wallet num");
+            throw new BusinessException("wrong wallet num");
         }
         Map<String, Object> tarUser = walletMapper.userCheckoutByWalletNum(walletNum);
 
         Integer tarType = ((BigDecimal) tarUser.get("type")).intValue();
         Integer tarRole = ((BigDecimal) tarUser.get("role")).intValue();
         if (tarType != 2 || tarRole != 1) {
-            throw new NoteException("invalid operation");
+            throw new BusinessException("invalid operation");
         }
 
         // order
@@ -117,13 +117,13 @@ public class WalletService {
         valid.add(offset != null);
         valid.add(limit != null);
         if (valid.contains(false)) {
-            throw new NoteException("invalid arguments");
+            throw new BusinessException("invalid arguments");
         }
 
         Map<String, Object> cachedUser = session.getCurUser();
         int role = ((BigDecimal) cachedUser.get("role")).intValue();
         if (!Arrays.asList(new Integer[] { 0, 1 }).contains(role)) {
-            throw new NoteException("invalid operation");
+            throw new BusinessException("invalid operation");
         }
         //
 
@@ -143,13 +143,13 @@ public class WalletService {
         valid.add(offset != null);
         valid.add(limit != null);
         if (valid.contains(false)) {
-            throw new NoteException("invalid arguments");
+            throw new BusinessException("invalid arguments");
         }
 
         Map<String, Object> cachedUser = session.getCurUser();
         int role = ((BigDecimal) cachedUser.get("role")).intValue();
         if (!Arrays.asList(new Integer[] { 0, 1 }).contains(role)) {
-            throw new NoteException("invalid operation");
+            throw new BusinessException("invalid operation");
         }
         //
 

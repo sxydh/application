@@ -19,15 +19,15 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import bhe.net.cn.auth.SessionKey;
-import bhe.net.cn.auth.SessionUtils;
 import bhe.net.cn.base.HelperUtils;
 import bhe.net.cn.base.Page;
+import bhe.net.cn.cache.SessionUtils;
 import bhe.net.cn.dao.WalletDao;
+import bhe.net.cn.dict.K;
 import bhe.net.cn.entity.Order;
 import bhe.net.cn.entity.Wallet;
 import bhe.net.cn.entity.WalletLog;
-import bhe.net.cn.exception.NoteException;
+import bhe.net.cn.exception.BusinessException;
 import bhe.net.cn.utils.HttpClientUtils;
 import bhe.net.cn.utils.JacksonUtils;
 
@@ -45,9 +45,9 @@ public class WalletService {
         valid.add(type != null && type != 2);
         valid.add(value != null && value > 0);
         if (valid.contains(false)) {
-            throw new NoteException("invalid parameter");
+            throw new BusinessException("invalid parameter");
         }
-        Integer userId = ((BigInteger) SessionUtils.get(request, SessionKey.USERID)).intValue();
+        Integer userId = ((BigInteger) SessionUtils.get(request, K.S_USERID)).intValue();
         //
 
         // api
@@ -90,9 +90,9 @@ public class WalletService {
         valid.add(offset != null);
         valid.add(limit != null);
         if (valid.contains(false)) {
-            throw new NoteException("invalid parameter");
+            throw new BusinessException("invalid parameter");
         }
-        rq_w.put("userId", SessionUtils.get(request, SessionKey.USERID));
+        rq_w.put("userId", SessionUtils.get(request, K.S_USERID));
         //
 
         return walletDao.orderList(rq_w);
@@ -105,9 +105,9 @@ public class WalletService {
         valid.add(offset != null);
         valid.add(limit != null);
         if (valid.contains(false)) {
-            throw new NoteException("invalid parameter");
+            throw new BusinessException("invalid parameter");
         }
-        rq_w.put("userId", SessionUtils.get(request, SessionKey.USERID));
+        rq_w.put("userId", SessionUtils.get(request, K.S_USERID));
         //
 
         return walletDao.logList(rq_w);
@@ -118,7 +118,7 @@ public class WalletService {
         List<Boolean> valid = new ArrayList<>();
         valid.add(StringUtils.isNotEmpty(id));
         if (valid.contains(false)) {
-            throw new NoteException("invalid parameter");
+            throw new BusinessException("invalid parameter");
         }
         //
 
@@ -126,7 +126,7 @@ public class WalletService {
     }
 
     public Map<String, Object> walletGet(HttpServletRequest request) {
-        Integer userId = ((BigInteger) SessionUtils.get(request, SessionKey.USERID)).intValue();
+        Integer userId = ((BigInteger) SessionUtils.get(request, K.S_USERID)).intValue();
         //
 
         return walletDao.walletCheckoutByUserId(userId);
@@ -137,13 +137,13 @@ public class WalletService {
         List<Boolean> valid = new ArrayList<>();
         valid.add(id != null);
         if (valid.contains(false)) {
-            throw new NoteException("invalid parameter");
+            throw new BusinessException("invalid parameter");
         }
         //
 
         Order order = walletDao.orderGetForUpdate(id);
         if (order.getStatus() == -1) {
-            throw new NoteException("Repeated operation");
+            throw new BusinessException("Repeated operation");
         }
 
         order.setStatus(-1);
@@ -156,9 +156,9 @@ public class WalletService {
         List<Boolean> valid = new ArrayList<>();
         valid.add(StringUtils.isNotEmpty(id));
         if (valid.contains(false)) {
-            throw new NoteException("invalid parameter");
+            throw new BusinessException("invalid parameter");
         }
-        Integer userId = ((BigInteger) SessionUtils.get(request, SessionKey.USERID)).intValue();
+        Integer userId = ((BigInteger) SessionUtils.get(request, K.S_USERID)).intValue();
         //
 
         // wallet
