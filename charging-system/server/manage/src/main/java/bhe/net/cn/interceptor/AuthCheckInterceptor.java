@@ -13,9 +13,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-import bhe.net.cn.Dict.Prop;
 import bhe.net.cn.base.Rt;
 import bhe.net.cn.base.SessionUtils;
+import bhe.net.cn.dict.Prop;
 import bhe.net.cn.utils.JacksonUtils;
 
 @Component

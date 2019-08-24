@@ -1,4 +1,4 @@
-package bhe.net.cn.Dict;
+package bhe.net.cn.dict;
 
 import java.io.FileInputStream;
 import java.lang.reflect.Field;
