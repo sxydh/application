@@ -2,3 +2,4 @@
 *.project
 *.factorypath
 *.springBeans
+.idea
