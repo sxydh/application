@@ -1,4 +1,4 @@
-package bhe.net.cn.api.greenyep;
+package cn.net.bhe.chargingsystem.common.api.greenyep;
 
 import java.io.Serializable;
 

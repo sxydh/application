@@ -1,4 +1,4 @@
-package bhe.net.cn.base;
+package cn.net.bhe.chargingsystem.common.base;
 
 public class Rt {
 

@@ -10,7 +10,7 @@
         <version>2.1.5.RELEASE</version>
     </parent>
     <groupId>cn.net.bhe</groupId>
-    <artifactId>common</artifactId>
+    <artifactId>chargingsystem-common</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>common</name>
     <url>http://maven.apache.org</url>
@@ -19,6 +19,21 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>cn.net.bhe</groupId>
+            <artifactId>utils</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/com.alipay.sdk/alipay-sdk-java -->
         <dependency>
             <groupId>com.alipay.sdk</groupId>

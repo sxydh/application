@@ -1,4 +1,4 @@
-package bhe.net.cn.exception;
+package cn.net.bhe.chargingsystem.common.exception;
 
 public class ExpException extends RuntimeException {
 

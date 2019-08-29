@@ -1,4 +1,4 @@
-package bhe.net.cn.api.ali;
+package cn.net.bhe.chargingsystem.common.api.ali;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -13,7 +13,7 @@ import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.profile.IClientProfile;
 
-import bhe.net.cn.utils.MathUtils;
+import cn.net.bhe.utils.main.MathUtils;
 
 /**
  * 编码采用UTF-8, 国际短信发送请勿参照此DEMO

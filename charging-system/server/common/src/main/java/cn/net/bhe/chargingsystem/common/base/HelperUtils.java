@@ -1,4 +1,4 @@
-package bhe.net.cn.base;
+package cn.net.bhe.chargingsystem.common.base;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -11,7 +11,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import bhe.net.cn.utils.MD5Utils;
+import cn.net.bhe.utils.main.MD5Utils;
 
 public enum HelperUtils {
     ;

@@ -1,4 +1,4 @@
-package bhe.net.cn.base;
+package cn.net.bhe.chargingsystem.common.base;
 
 import java.util.List;
 

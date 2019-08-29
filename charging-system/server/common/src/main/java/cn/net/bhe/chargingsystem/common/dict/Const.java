@@ -1,4 +1,4 @@
-package bhe.net.cn.dict;
+package cn.net.bhe.chargingsystem.common.dict;
 
 public class Const {
 

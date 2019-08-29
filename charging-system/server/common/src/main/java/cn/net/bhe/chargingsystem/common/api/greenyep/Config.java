@@ -1,8 +1,8 @@
-package bhe.net.cn.api.greenyep;
+package cn.net.bhe.chargingsystem.common.api.greenyep;
 
 import org.apache.commons.lang3.StringUtils;
 
-import bhe.net.cn.utils.MD5Utils;
+import cn.net.bhe.utils.main.MD5Utils;
 
 public class Config {
 
