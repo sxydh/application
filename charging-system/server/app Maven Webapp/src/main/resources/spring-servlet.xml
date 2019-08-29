@@ -17,14 +17,14 @@
     <mvc:interceptors> 
         <mvc:interceptor>
             <mvc:mapping path="/**" />
-            <bean class="bhe.net.cn.interceptor.AuthCheckInterceptor">
+            <bean class="cn.net.bhe.chargingsystem.app.interceptor.AuthCheckInterceptor">
             </bean>
         </mvc:interceptor>
     </mvc:interceptors>
     <!-- Prerequisite configuration of @Controller annotation, and cannot have both the XML config and @EnableWebMvc -->
     <mvc:annotation-driven />
     <!-- Must specify the correct controller components path -->
-    <context:component-scan base-package="bhe.net.cn.controller" />
+    <context:component-scan base-package="cn.net.bhe.chargingsystem.app.controller" />
     <mvc:view-controller
         path="/"
         view-name="/index" />

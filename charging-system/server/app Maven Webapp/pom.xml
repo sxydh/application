@@ -9,14 +9,14 @@
         <artifactId>charing-system</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <artifactId>app</artifactId>
+    <artifactId>chargingsystem-app</artifactId>
     <packaging>war</packaging>
     <name>app Maven Webapp</name>
     <url>http://maven.apache.org</url>
     <dependencies>
         <dependency>
             <groupId>cn.net.bhe</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>chargingsystem-common</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/cglib/cglib -->
