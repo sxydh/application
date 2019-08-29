@@ -10,7 +10,7 @@
         <version>2.1.5.RELEASE</version>
     </parent>
     <groupId>cn.net.bhe</groupId>
-    <artifactId>manage</artifactId>
+    <artifactId>chargingsystem-manage</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>manage</name>
     <url>http://maven.apache.org</url>
@@ -21,7 +21,7 @@
     <dependencies>
         <dependency>
             <groupId>cn.net.bhe</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>chargingsystem-common</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.alibaba/druid -->
