@@ -25,8 +25,12 @@ public class JacksonUtils {
 
     }
 
-    public static String objToJsonStr(Object obj) throws JsonProcessingException {
-        return objectMapper.writeValueAsString(obj);
+    public static String objToJsonStr(Object obj) {
+        try {
+            return objectMapper.writeValueAsString(obj);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static <X> X jsonStrToObj(String content, Class<X> valueType) throws JsonParseException, JsonMappingException, IOException {

@@ -1,0 +1,7 @@
+package cn.net.bhe.utils;
+
+public enum K {
+
+    URL, PARAM;
+
+}
