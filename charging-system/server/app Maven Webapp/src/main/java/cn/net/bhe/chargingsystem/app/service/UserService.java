@@ -73,6 +73,7 @@ public class UserService {
         Map<String, Object> result = new HashMap<>();
         user = new HashMap<>(user);
         user.remove("password");
+        user.put("sessionid", request.getSession().getId());
         result.put("user", user);
         int userId = ((BigInteger) user.get("id")).intValue();
         result.put("wallet", userDao.walletGetByUserId(userId));

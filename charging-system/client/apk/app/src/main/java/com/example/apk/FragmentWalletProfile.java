@@ -8,9 +8,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import cn.net.bhe.utils.Load;
 
 public class FragmentWalletProfile extends Fragment {
@@ -21,13 +18,13 @@ public class FragmentWalletProfile extends Fragment {
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.wallet_profile, container, false);
 
-        Load load = Load.instance().setUrl("/wallet/get");
-        Map<String, Object> map = new HashMap<>();
-        map.put("url", "/wallet/get");
-        map.put("phone", "15186942525");
-        map.put("password", "670b14728ad9902aecba32e22fa4f6bd");
-        map.put("type", 2);
-        HttpTask.init(this.getActivity()).execute(map);
+        HttpTask.init(this.getActivity()).execute(Load.instance("/wallet/get")
+                //
+                .put("phone", "15186942525")
+                //
+                .put("password", "670b14728ad9902aecba32e22fa4f6bd")
+                //
+                .put("type", 2));
 
         return root;
     }

@@ -8,9 +8,9 @@ import java.util.Map;
 
 import cn.net.bhe.utils.HttpUtils;
 import cn.net.bhe.utils.JacksonUtils;
-import cn.net.bhe.utils.K;
+import cn.net.bhe.utils.Load;
 
-public class HttpTask extends AsyncTask<Map<String, Object>, Object, String> {
+public class HttpTask extends AsyncTask<Load, Object, String> {
 
     private Activity activity;
 
@@ -21,12 +21,12 @@ public class HttpTask extends AsyncTask<Map<String, Object>, Object, String> {
     }
 
     @Override
-    protected String doInBackground(Map<String, Object>... maps) {
+    protected String doInBackground(Load... loads) {
         String result = null;
         try {
             Map<String, Object> map = HttpUtils.post(
-                    (String) maps[0].get(K.URL),
-                    (String) maps[0].get(K.PARAM));
+                    loads[0].getUrl(),
+                    JacksonUtils.objToJsonStr(loads[0].getMap()));
             result = JacksonUtils.objToJsonStr(map.toString());
         } catch (Exception e) {
             e.printStackTrace();

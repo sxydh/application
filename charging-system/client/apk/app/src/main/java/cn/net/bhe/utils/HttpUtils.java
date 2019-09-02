@@ -14,6 +14,7 @@ public class HttpUtils {
 
     public static void main(String[] args) {
         String result = null;
+        /*
         try {
             Map<String, Object> map = HttpUtils.post(
                     "/user/login",
@@ -23,6 +24,12 @@ public class HttpUtils {
                             + "\"type\": 2"
                             + "}");
             result = JacksonUtils.objToJsonStr(map.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        */
+        try {
+            result = JacksonUtils.objToJsonStr(HttpUtils.get("/wallet/get", new HashMap<>()));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -40,7 +47,9 @@ public class HttpUtils {
             for (String key : paramMap.keySet()) {
                 params += "&" + key + "=" + paramMap.get(key);
             }
-            params = "?" + params.substring(1);
+            if (params.length() > 0) {
+                params = "?" + params.substring(1);
+            }
         }
 
         URL obj = new URL(HOST + url + params);
@@ -48,6 +57,9 @@ public class HttpUtils {
 
         // optional default is GET
         conn.setRequestMethod("GET");
+        conn.setRequestProperty("cookie", "SESSION=114eb502-a083-4123-b2a5-e47df5970e61");
+        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        conn.setRequestProperty("Accept", "application/json");
 
         int code = conn.getResponseCode();
         response.put("code", code);

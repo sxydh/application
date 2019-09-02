@@ -16,6 +16,7 @@ import cn.net.bhe.chargingsystem.app.dict.Prop;
 import cn.net.bhe.chargingsystem.common.base.Rt;
 import cn.net.bhe.chargingsystem.common.dict.K;
 import cn.net.bhe.utils.main.JacksonUtils;
+import cn.net.bhe.utils.main.ServletUtils;
 
 public class AuthCheckInterceptor implements HandlerInterceptor {
 
@@ -30,7 +31,7 @@ public class AuthCheckInterceptor implements HandlerInterceptor {
 
                 response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
                 response.setStatus(HttpServletResponse.SC_OK);
-                response.getWriter().write(JacksonUtils.objToJsonStr(rt));
+                ServletUtils.print(response, JacksonUtils.objToJsonStr(rt));
 
                 return false;
             }
