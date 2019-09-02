@@ -122,12 +122,20 @@ public class Prop {
 
     public static boolean needCheck(String url) {
         Boolean b = checkUrl.get(url.replaceAll("\\/+", "/"));
-        return b == null ? false : b;
+        if (b == null) {
+            return true;
+        } else {
+            return b;
+        }
     }
 
     public static boolean needEncrypt(String url) {
         Boolean b = encryptUrl.get(url.replaceAll("\\/+", "/"));
-        return b == null ? false : b;
+        if (b == null) {
+            return true;
+        } else {
+            return b;
+        }
     }
 
     private static List<Field> listStatPubField() {

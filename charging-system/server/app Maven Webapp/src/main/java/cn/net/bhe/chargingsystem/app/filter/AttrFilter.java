@@ -12,8 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.stereotype.Component;
 
-import cn.net.bhe.chargingsystem.common.dict.K;
-
 @Component
 public class AttrFilter implements Filter {
 
@@ -26,7 +24,6 @@ public class AttrFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        httpServletRequest.getSession().setAttribute(K.REQ_URI.toString(), httpServletRequest.getRequestURI());
         chain.doFilter(httpServletRequest, response);
     }
 
