@@ -2,7 +2,9 @@ package cn.net.bhe.utils;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -10,113 +12,189 @@ import java.util.Map;
 
 public class HttpUtils {
 
-    private static final String HOST = "http://192.168.18.239:8080/app";
+    public static final String HOST_MAIN = "http://192.168.18.239:8080/app";
+
+    public static final Map<String, Map<K, Object>> credential = new HashMap<>();
 
     public static void main(String[] args) {
         String result = null;
-        /*
-        try {
-            Map<String, Object> map = HttpUtils.post(
-                    "/user/login",
-                    "{"
-                            + "\"phone\": \"15186942525\","
-                            + "\"password\": \"670b14728ad9902aecba32e22fa4f6bd\","
-                            + "\"type\": 2"
-                            + "}");
-            result = JacksonUtils.objToJsonStr(map.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        */
-        try {
-            result = JacksonUtils.objToJsonStr(HttpUtils.get("/wallet/get", new HashMap<>()));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Rt rt = HttpUtils.post(
+                HOST_MAIN,
+                "/user/login",
+                "{"
+                        + "\"phone\": \"15186942525\","
+                        + "\"password\": \"670b14728ad9902aecba32e22fa4f6bd\","
+                        + "\"type\": 2"
+                        + "}");
+        Map<K, Object> header = new HashMap<>();
+        Map<String, Object> data = (Map<String, Object>) rt.getData();
+        Map<String, Object> user = (Map<String, Object>) data.get("user");
+        header.put(K.COOKIE, "SESSION=" + user.get("session_id"));
+        credential.put(HOST_MAIN, header);
+        result = JacksonUtils.objToJsonStr(HttpUtils.get(HOST_MAIN, "/wallet/get", new HashMap<>()));
+
         System.out.println(result);
     }
 
     // HTTP GET request
-    public static Map<String, Object> get(String url, Map<String, String> paramMap) throws Exception {
-        System.out.println(HOST + url + ", " + paramMap.toString());
-
-        Map<String, Object> response = new HashMap<>();
+    public static Rt get(String host, String path, Map<String, String> query) {
+        Rt rt;
 
         String params = "";
-        if (paramMap != null) {
-            for (String key : paramMap.keySet()) {
-                params += "&" + key + "=" + paramMap.get(key);
+        if (query != null && !query.isEmpty()) {
+            for (String key : query.keySet()) {
+                params += "&" + key + "=" + query.get(key);
             }
-            if (params.length() > 0) {
-                params = "?" + params.substring(1);
-            }
+            params = "?" + params.substring(1);
         }
 
-        URL obj = new URL(HOST + url + params);
-        HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
+        BufferedReader reader = null;
+        try {
+            URL obj = new URL(host + path + params);
+            HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
 
-        // optional default is GET
-        conn.setRequestMethod("GET");
-        conn.setRequestProperty("cookie", "SESSION=114eb502-a083-4123-b2a5-e47df5970e61");
-        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-        conn.setRequestProperty("Accept", "application/json");
+            // optional default is GET
+            conn.setRequestMethod("GET");
+            Map<K, Object> header = credential.get(host);
+            if (header != null) {
+                conn.setRequestProperty("cookie", (String) header.get(K.COOKIE));
+            }
+            conn.setRequestProperty("Content-Type", MediaType.APPLICATION_JSON_UTF8);
+            conn.setRequestProperty("Accept", MediaType.APPLICATION_JSON);
 
-        int code = conn.getResponseCode();
-        response.put("code", code);
+            reader = new BufferedReader(
+                    new InputStreamReader(conn.getInputStream()));
+            String line;
+            StringBuffer body = new StringBuffer();
 
-        BufferedReader reader = new BufferedReader(
-                new InputStreamReader(conn.getInputStream()));
-        String line;
-        StringBuffer body = new StringBuffer();
-
-        while ((line = reader.readLine()) != null) {
-            body.append(line);
+            while ((line = reader.readLine()) != null) {
+                body.append(line);
+            }
+            rt = JacksonUtils.jsonStrToObj(body.toString(), Rt.class);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        response.put("body", body);
-        reader.close();
-
-        return response;
-
+        return rt;
     }
 
     // HTTP POST request
-    public static Map<String, Object> post(String url, String jsonStr) throws Exception {
-        System.out.println(HOST + url + ", " + jsonStr);
+    public static Rt post(String host, String path, String jsonStr) {
+        Rt rt;
 
-        Map<String, Object> response = new HashMap<>();
+        BufferedReader reader = null;
+        try {
+            URL obj = new URL(host + path);
+            HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
 
-        URL obj = new URL(HOST + url);
-        HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
+            conn.setRequestMethod("POST");
+            Map<K, Object> header = credential.get(host);
+            if (header != null) {
+                conn.setRequestProperty("cookie", (String) header.get(K.COOKIE));
+            }
+            conn.setRequestProperty("Content-Type", MediaType.APPLICATION_JSON_UTF8);
+            conn.setRequestProperty("Accept", MediaType.APPLICATION_JSON);
 
-        conn.setRequestMethod("POST");
-        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-        conn.setRequestProperty("Accept", "application/json");
+            /* setDoOutput(true) is used for POST and PUT requests. If it is false then it is for using GET requests */
+            conn.setDoOutput(true);
+            DataOutputStream out = new DataOutputStream(conn.getOutputStream());
 
-        conn.setDoOutput(true);
-        DataOutputStream out = new DataOutputStream(conn.getOutputStream());
+            if (jsonStr != null && !jsonStr.isEmpty()) {
+                out.writeBytes(jsonStr);
+            }
 
-        if (jsonStr != null && !jsonStr.isEmpty()) {
-            out.writeBytes(jsonStr);
+            out.flush();
+            out.close();
+
+            reader = new BufferedReader(
+                    new InputStreamReader(conn.getInputStream()));
+            String line;
+            StringBuffer body = new StringBuffer();
+
+            while ((line = reader.readLine()) != null) {
+                body.append(line);
+            }
+            rt = JacksonUtils.jsonStrToObj(body.toString(), Rt.class);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return rt;
+    }
+
+    public static class MediaType {
+
+        public static final String ALL = "*/*";
+        public static final String APPLICATION_ATOM_XML = "application/atom+xml";
+        public static final String APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded";
+        public static final String APPLICATION_JSON = "application/json";
+        public static final String APPLICATION_JSON_UTF8 = "application/json;charset=UTF-8";
+        public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
+        public static final String APPLICATION_PDF = "application/pdf";
+        public static final String APPLICATION_PROBLEM_JSON = "application/problem+json";
+        public static final String APPLICATION_PROBLEM_JSON_UTF8 = "application/problem+json;charset=UTF-8";
+        public static final String APPLICATION_PROBLEM_XML = "application/problem+xml";
+        public static final String APPLICATION_RSS_XML = "application/rss+xml";
+        public static final String APPLICATION_STREAM_JSON = "application/stream+json";
+        public static final String APPLICATION_XHTML_XML = "application/xhtml+xml";
+        public static final String APPLICATION_XML = "application/xml";
+        public static final String IMAGE_GIF = "image/gif";
+        public static final String IMAGE_JPEG = "image/jpeg";
+        public static final String IMAGE_PNG = "image/png";
+        public static final String MULTIPART_FORM_DATA = "multipart/form-data";
+        public static final String TEXT_EVENT_STREAM = "text/event-stream";
+        public static final String TEXT_HTML = "text/html";
+        public static final String TEXT_MARKDOWN = "text/markdown";
+        public static final String TEXT_PLAIN = "text/plain";
+        public static final String TEXT_XML = "text/xml";
+
+    }
+
+    public static class Rt implements Serializable {
+
+        private Integer sc;
+        private String msg;
+        private Object data;
+
+        public Rt() {
         }
 
-        out.flush();
-        out.close();
-
-        int code = conn.getResponseCode();
-        response.put("code", code);
-
-        BufferedReader reader = new BufferedReader(
-                new InputStreamReader(conn.getInputStream()));
-        String line;
-        StringBuffer body = new StringBuffer();
-
-        while ((line = reader.readLine()) != null) {
-            body.append(line);
+        public Integer getSc() {
+            return sc;
         }
-        response.put("body", body);
-        reader.close();
 
-        return response;
+        public void setSc(Integer sc) {
+            this.sc = sc;
+        }
 
+        public String getMsg() {
+            return msg;
+        }
+
+        public void setMsg(String msg) {
+            this.msg = msg;
+        }
+
+        public Object getData() {
+            return data;
+        }
+
+        public void setData(Object data) {
+            this.data = data;
+        }
     }
 }

@@ -95,4 +95,13 @@ public class UserDao extends BaseDao {
         getSession().createSQLQuery(sql).setBigInteger("id", (BigInteger) user.get("id")).setString("ip", (String) user.get("ip")).executeUpdate();
     }
 
+    public void updateSessionId(Map<String, Object> user) {
+        String sql = " UPDATE CS_USER SET session_id = :sessionid, updatetime = NOW() WHERE id = :id ";
+        getSession().createSQLQuery(sql)
+                //
+                .setParameter("sessionid", user.get("session_id"))
+                //
+                .setParameter("id", user.get("id")).executeUpdate();
+    }
+
 }

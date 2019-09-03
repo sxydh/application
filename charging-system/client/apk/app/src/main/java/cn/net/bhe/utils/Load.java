@@ -5,19 +5,19 @@ import java.util.Map;
 
 public class Load {
 
-    private final String url;
+    private final String path;
     private final Map<String, Object> map = new HashMap<>();
 
-    private Load(String url) {
-        this.url = url;
+    private Load(String path) {
+        this.path = path;
     }
 
     public static Load instance(String url) {
         return new Load(url);
     }
 
-    public String getUrl() {
-        return url;
+    public String getPath() {
+        return path;
     }
 
     public Object get(String key){

@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.os.AsyncTask;
 import android.widget.TextView;
 
-import java.util.Map;
-
 import cn.net.bhe.utils.HttpUtils;
 import cn.net.bhe.utils.JacksonUtils;
 import cn.net.bhe.utils.Load;
@@ -24,10 +22,11 @@ public class HttpTask extends AsyncTask<Load, Object, String> {
     protected String doInBackground(Load... loads) {
         String result = null;
         try {
-            Map<String, Object> map = HttpUtils.post(
-                    loads[0].getUrl(),
+            HttpUtils.Rt rt = HttpUtils.post(
+                    HttpUtils.HOST_MAIN,
+                    loads[0].getPath(),
                     JacksonUtils.objToJsonStr(loads[0].getMap()));
-            result = JacksonUtils.objToJsonStr(map.toString());
+            result = JacksonUtils.objToJsonStr(rt);
         } catch (Exception e) {
             e.printStackTrace();
         }
