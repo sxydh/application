@@ -18,20 +18,28 @@ import cn.net.bhe.utils.M;
 
 public class ActivityLogin extends AppCompatActivity {
 
+    Button button;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
 
+        button = findViewById(R.id.bhe_login);
         findViewById(R.id.bhe_login).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Button button = findViewById(R.id.bhe_login);
-                button.setText("loading");
+                new AsyncTask<Load, String, HttpUtils.Rt>() {
+                    @Override
+                    protected void onProgressUpdate(String... values) {
+                        super.onProgressUpdate(values);
 
-                new AsyncTask<Load, Object, HttpUtils.Rt>() {
+                        button.setText(values[0]);
+                    }
+
                     @Override
                     protected HttpUtils.Rt doInBackground(Load... loads) {
+                        publishProgress("loading");
                         return HttpUtils.post(
                                 HttpUtils.HOST_MAIN,
                                 loads[0].getPath(),
