@@ -12,8 +12,8 @@ public class Load {
         this.path = path;
     }
 
-    public static Load instance(String url) {
-        return new Load(url);
+    public static Load instance(String path) {
+        return new Load(path);
     }
 
     public String getPath() {
