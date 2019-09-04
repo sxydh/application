@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/wallet_profile"
+    android:id="@+id/bhe_wallet_profile"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".FragmentWalletProfile">
 
     <TextView
-        android:id="@+id/wallet_profile_text"
+        android:id="@+id/bhe_wallet_profile_text"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:text="wallet profile" />

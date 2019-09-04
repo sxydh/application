@@ -12,11 +12,6 @@ import androidx.viewpager.widget.ViewPager;
 
 public class ActivityFrame extends AppCompatActivity {
 
-    private Handler handler = new Handler() {
-        public void handleMessage(Message message) {
-
-        }
-    };
     private DrawerLayout drawerLayout;
     private ViewPager viewPager;
     private AdapterViewPagerWater adapterViewPagerWater;
@@ -27,10 +22,10 @@ public class ActivityFrame extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.frame);
 
-        drawerLayout = findViewById(R.id.draw_layout);
-        findViewById(R.id.menu_button).setOnClickListener(view -> {
+        drawerLayout = findViewById(R.id.bhe_draw_layout);
+        findViewById(R.id.bhe_menu_button).setOnClickListener(view -> {
             switch (view.getId()) {
-                case R.id.menu_button:
+                case R.id.bhe_menu_button:
                     drawerLayout.openDrawer(Gravity.LEFT);
                     break;
             }
@@ -39,16 +34,16 @@ public class ActivityFrame extends AppCompatActivity {
         adapterViewPagerWater = new AdapterViewPagerWater(this, getSupportFragmentManager());
         adapterViewPagerWallet = new AdapterViewPagerWallet(this, getSupportFragmentManager());
 
-        viewPager = findViewById(R.id.view_pager);
+        viewPager = findViewById(R.id.bhe_view_pager);
         viewPager.setAdapter(adapterViewPagerWater);
     }
 
     public void change(View view) {
         switch (view.getId()) {
-            case R.id.water:
+            case R.id.bhe_water:
                 viewPager.setAdapter(adapterViewPagerWater);
                 break;
-            case R.id.wallet:
+            case R.id.bhe_wallet:
                 viewPager.setAdapter(adapterViewPagerWallet);
                 break;
         }

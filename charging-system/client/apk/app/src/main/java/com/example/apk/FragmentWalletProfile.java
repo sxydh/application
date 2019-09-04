@@ -14,6 +14,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.net.bhe.utils.Host;
 import cn.net.bhe.utils.HttpUtils;
 import cn.net.bhe.utils.JacksonUtils;
 import cn.net.bhe.utils.Load;
@@ -22,7 +23,7 @@ public class FragmentWalletProfile extends Fragment {
 
     private SwipeRefreshLayout swipeRefreshLayout;
     private TextView textView;
-    private Map<String, Object> cache = new HashMap<>();
+    private static Map<String, Object> cache = new HashMap<>();
 
     @Override
     public View onCreateView(
@@ -30,9 +31,9 @@ public class FragmentWalletProfile extends Fragment {
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.wallet_profile, container, false);
 
-        textView = root.findViewById(R.id.wallet_profile_text);
+        textView = root.findViewById(R.id.bhe_wallet_profile_text);
 
-        swipeRefreshLayout = root.findViewById(R.id.wallet_profile);
+        swipeRefreshLayout = root.findViewById(R.id.bhe_wallet_profile);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -61,7 +62,7 @@ public class FragmentWalletProfile extends Fragment {
             @Override
             protected HttpUtils.Rt doInBackground(Load... loads) {
                 return HttpUtils.get(
-                        HttpUtils.HOST_MAIN,
+                        Host.MAIN,
                         loads[0].getPath(),
                         null);
             }

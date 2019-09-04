@@ -61,18 +61,17 @@ public class UserService {
             throw new BusinessException("wrong password");
         }
 
-        // update ip
+        // ip
         user.put("ip", SessionUtils.getIp(request));
-        userDao.updateIp(user);
 
-        // update session
+        // session
+        String sessionid = request.getSession().getId();
+        user.put("sessionid", sessionid);
+
+        // cache
         SessionUtils.set(request, K.S_IP, SessionUtils.getIp(request));
         SessionUtils.set(request, K.S_USERID, user.get("id"));
         SessionUtils.set(request, K.S_USER, user);
-
-        String sessionid = request.getSession().getId();
-        user.put("session_id", sessionid);
-        userDao.updateSessionId(user);
 
         Map<String, Object> result = new HashMap<>();
         user = new HashMap<>(user);
@@ -81,6 +80,8 @@ public class UserService {
         int userId = ((BigInteger) user.get("id")).intValue();
         result.put("wallet", userDao.walletGetByUserId(userId));
         result.put("water", userDao.waterGetByUserId(userId));
+
+        userDao.updateLogin(user);
 
         return result;
     }

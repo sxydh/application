@@ -1,6 +1,6 @@
 <androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/draw_layout"
+    android:id="@+id/bhe_draw_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -9,53 +9,53 @@
         android:layout_height="match_parent">
 
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/navigation_top"
+            android:id="@+id/bhe_navigation_top"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:background="#54b0e9"
             android:padding="10dp">
 
             <ImageView
-                android:id="@+id/menu_button"
+                android:id="@+id/bhe_menu_button"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:src="@mipmap/ic_launcher" />
 
             <ImageView
-                android:id="@+id/search_button"
+                android:id="@+id/bhe_search_button"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_alignParentRight="true"
                 android:src="@mipmap/ic_launcher" />
 
             <EditText
-                android:id="@+id/search_value"
+                android:id="@+id/bhe_search_value"
                 android:layout_width="250dp"
                 android:layout_height="40dp"
                 android:layout_marginRight="10dp"
-                android:layout_toLeftOf="@+id/search_button"
+                android:layout_toLeftOf="@+id/bhe_search_button"
                 android:background="#FD9797"
                 android:inputType="text" />
         </RelativeLayout>
 
         <androidx.viewpager.widget.ViewPager
-            android:id="@+id/view_pager"
+            android:id="@+id/bhe_view_pager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/navigation_bottom"
-            android:layout_below="@+id/navigation_top"
+            android:layout_above="@+id/bhe_navigation_bottom"
+            android:layout_below="@+id/bhe_navigation_top"
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/navigation_bottom"
+            android:id="@+id/bhe_navigation_bottom"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_alignParentBottom="true"
             android:background="#54b0e9">
 
             <ImageView
-                android:id="@+id/water"
+                android:id="@+id/bhe_water"
                 android:layout_width="40dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -63,7 +63,7 @@
                 android:onClick="change" />
 
             <ImageView
-                android:id="@+id/wallet"
+                android:id="@+id/bhe_wallet"
                 android:layout_width="40dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"

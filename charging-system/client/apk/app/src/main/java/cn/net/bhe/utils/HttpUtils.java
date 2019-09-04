@@ -7,31 +7,24 @@ import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Map;
 
 public class HttpUtils {
 
-    public static final String HOST_MAIN = "http://192.168.18.239:8080/app";
-
-    public static final Map<String, Map<K, Object>> credential = new HashMap<>();
-
     public static void main(String[] args) {
         String result = null;
         Rt rt = HttpUtils.post(
-                HOST_MAIN,
+                Host.MAIN,
                 "/user/login",
                 "{"
                         + "\"phone\": \"15186942525\","
                         + "\"password\": \"670b14728ad9902aecba32e22fa4f6bd\","
                         + "\"type\": 2"
                         + "}");
-        Map<K, Object> header = new HashMap<>();
         Map<String, Object> data = (Map<String, Object>) rt.getData();
         Map<String, Object> user = (Map<String, Object>) data.get("user");
-        header.put(K.COOKIE, "SESSION=" + user.get("session_id"));
-        credential.put(HOST_MAIN, header);
-        result = JacksonUtils.objToJsonStr(HttpUtils.get(HOST_MAIN, "/wallet/get", new HashMap<>()));
+        Credential.setCookie(Host.MAIN, "SESSION=" + user.get("session_id"));
+        result = JacksonUtils.objToJsonStr(HttpUtils.get(Host.MAIN, "/wallet/get", null));
 
         System.out.println(result);
     }
@@ -55,10 +48,7 @@ public class HttpUtils {
 
             // optional default is GET
             conn.setRequestMethod("GET");
-            Map<K, Object> header = credential.get(host);
-            if (header != null) {
-                conn.setRequestProperty("cookie", (String) header.get(K.COOKIE));
-            }
+            conn.setRequestProperty("cookie", Credential.getCookie(host));
             conn.setRequestProperty("Content-Type", MediaType.APPLICATION_JSON_UTF8);
             conn.setRequestProperty("Accept", MediaType.APPLICATION_JSON);
 
@@ -95,10 +85,7 @@ public class HttpUtils {
             HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
 
             conn.setRequestMethod("POST");
-            Map<K, Object> header = credential.get(host);
-            if (header != null) {
-                conn.setRequestProperty("cookie", (String) header.get(K.COOKIE));
-            }
+            conn.setRequestProperty("cookie", Credential.getCookie(host));
             conn.setRequestProperty("Content-Type", MediaType.APPLICATION_JSON_UTF8);
             conn.setRequestProperty("Accept", MediaType.APPLICATION_JSON);
 

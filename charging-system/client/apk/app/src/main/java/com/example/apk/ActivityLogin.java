@@ -10,23 +10,22 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.Map;
 
+import cn.net.bhe.utils.Credential;
+import cn.net.bhe.utils.Host;
 import cn.net.bhe.utils.HttpUtils;
 import cn.net.bhe.utils.JacksonUtils;
-import cn.net.bhe.utils.K;
 import cn.net.bhe.utils.Load;
-import cn.net.bhe.utils.M;
 
 public class ActivityLogin extends AppCompatActivity {
-
-    Button button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.login);
 
-        button = findViewById(R.id.bhe_login);
-        findViewById(R.id.bhe_login).setOnClickListener(new View.OnClickListener() {
+        Button button = findViewById(R.id.bhe_login);
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 new AsyncTask<Load, String, HttpUtils.Rt>() {
@@ -41,7 +40,7 @@ public class ActivityLogin extends AppCompatActivity {
                     protected HttpUtils.Rt doInBackground(Load... loads) {
                         publishProgress("loading");
                         return HttpUtils.post(
-                                HttpUtils.HOST_MAIN,
+                                Host.MAIN,
                                 loads[0].getPath(),
                                 JacksonUtils.objToJsonStr(loads[0].getMap()));
                     }
@@ -52,7 +51,7 @@ public class ActivityLogin extends AppCompatActivity {
 
                         Map<String, Object> data = (Map<String, Object>) rt.getData();
                         Map<String, Object> user = (Map<String, Object>) data.get("user");
-                        HttpUtils.credential.put(HttpUtils.HOST_MAIN, M.g().put(K.COOKIE, "SESSION=" + user.get("session_id")).getMap());
+                        Credential.setCookie(Host.MAIN, "SESSION=" + user.get("sessionid"));
 
                         Intent intent = new Intent();
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -63,4 +62,5 @@ public class ActivityLogin extends AppCompatActivity {
             }
         });
     }
+
 }

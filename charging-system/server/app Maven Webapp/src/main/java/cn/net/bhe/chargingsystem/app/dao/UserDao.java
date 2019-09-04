@@ -1,6 +1,5 @@
 package cn.net.bhe.chargingsystem.app.dao;
 
-import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
@@ -90,16 +89,13 @@ public class UserDao extends BaseDao {
                 .list());
     }
 
-    public void updateIp(Map<String, Object> user) {
-        String sql = " UPDATE CS_USER SET ip = :ip, updatetime = NOW() WHERE id = :id ";
-        getSession().createSQLQuery(sql).setBigInteger("id", (BigInteger) user.get("id")).setString("ip", (String) user.get("ip")).executeUpdate();
-    }
-
-    public void updateSessionId(Map<String, Object> user) {
-        String sql = " UPDATE CS_USER SET session_id = :sessionid, updatetime = NOW() WHERE id = :id ";
+    public void updateLogin(Map<String, Object> user) {
+        String sql = " UPDATE CS_USER SET session_id = :sessionid, ip = :ip, updatetime = NOW() WHERE id = :id ";
         getSession().createSQLQuery(sql)
                 //
-                .setParameter("sessionid", user.get("session_id"))
+                .setParameter("sessionid", user.get("sessionid"))
+                //
+                .setParameter("ip", user.get("ip"))
                 //
                 .setParameter("id", user.get("id")).executeUpdate();
     }
