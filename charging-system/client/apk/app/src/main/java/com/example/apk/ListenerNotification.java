@@ -10,10 +10,18 @@ import java.util.Date;
 public class ListenerNotification extends NotificationListenerService {
 
     @Override
+    public void onCreate() {
+        super.onCreate();
+
+        System.out.println("\r\n" + new Date().toString() + "\r\n" + this + " -> " + new Object() {
+        }.getClass().getEnclosingMethod().getName());
+    }
+
+    @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
         super.onNotificationPosted(sbn);
 
-        System.out.println(new Date().toString() + "\r\n" + new Object() {
+        System.out.println("\r\n" + new Date().toString() + "\r\n" + this + " -> " + new Object() {
         }.getClass().getEnclosingMethod().getName());
     }
 
@@ -26,8 +34,14 @@ public class ListenerNotification extends NotificationListenerService {
     public void onNotificationRemoved(StatusBarNotification sbn) {
         super.onNotificationRemoved(sbn);
 
-        System.out.println(new Date().toString() + "\r\n" + new Object() {
+        System.out.println("\r\n" + new Date().toString() + "\r\n" + this + " -> " + new Object() {
         }.getClass().getEnclosingMethod().getName());
+    }
+
+    @Override
+    public void onListenerDisconnected() {
+        super.onListenerDisconnected();
+
     }
 
 }
