@@ -17,7 +17,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ActivityLogin"></activity>
+        <activity
+            android:name=".ActivityLogin"
+            android:exported="true"></activity>
         <activity android:name=".ActivityFrame"></activity>
 
         <service
