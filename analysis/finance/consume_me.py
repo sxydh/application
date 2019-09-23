@@ -243,8 +243,13 @@ class Row(wx.Panel):
             text_ctrl.SetInsertionPointEnd()
         elif self.key_codes[len(self.key_codes) - 2] == 308 and self.key_codes[len(self.key_codes) - 1] == 65:
             text_ctrl.SetSelection(0, len(text_ctrl.GetValue()))
-        elif self.key_codes[len(self.key_codes) - 2] == 308 and self.key_codes[len(self.key_codes) - 1] == 370:
-            print()
+        elif self.key_codes[len(self.key_codes) - 2] == 308 and self.key_codes[len(self.key_codes) - 1] == 13:
+            children = self.GetParent().box.GetChildren()
+            for i in range(0, len(children)):
+                if children[i].GetWindow().GetId() == self.GetId():
+                    self.GetParent().box.Insert(index=i, window=Row(self.GetParent()).load_new())
+                    layout(self)
+                    break
         elif self.key_codes[len(self.key_codes) - 1] == wx.WXK_DELETE:
             msg = wx.MessageBox("sure to delete?", "Info", wx.OK | wx.CANCEL | wx.ICON_INFORMATION)
             if msg == 4:
