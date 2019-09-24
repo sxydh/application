@@ -1,8 +1,49 @@
+import sqlite3
+import traceback
 from finance.consume_me import *
 
 import os
 
-db_path = os.path.abspath("me.db")
+
+def query(sql, data=""):
+    conn = sqlite3.connect(get_db_path())
+    c = conn.cursor()
+
+    c.execute(sql, data)
+    rows = c.fetchall()
+    conn.close()
+    print("query(sql=" + sql + ", param=" + str(data) + ") -> " + str(rows))
+    return rows
+
+
+def dml(dmls):
+    conn = sqlite3.connect(get_db_path())
+    c = conn.cursor()
+
+    result = None
+    try:
+        for dml in dmls:
+            c.execute(dml[0], dml[1])
+            print("dml(sql=" + dml[0] + ", param=" + str(dml[1]) + ") -> " + str(c.fetchall()))
+        conn.commit()
+        result = c
+    except Exception:
+        conn.rollback()
+        traceback.print_exc()
+    conn.close()
+    return result
+
+
+def layout(obj):
+    obj.Layout()
+    upper = obj.GetParent()
+    while upper is not None:
+        upper.Layout()
+        upper = upper.GetParent()
+
+
+def get_db_path():
+    return os.getcwd() + "\me.db"
 
 
 class Main(wx.Frame):

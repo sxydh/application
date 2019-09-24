@@ -1,46 +1,7 @@
 import wx
-import sqlite3
 import re
 import datetime
-import traceback
-from main import db_path
-
-
-def query(sql, data=""):
-    conn = sqlite3.connect(db_path)
-    c = conn.cursor()
-
-    c.execute(sql, data)
-    rows = c.fetchall()
-    conn.close()
-    print("query(sql=" + sql + ", param=" + str(data) + ") -> " + str(rows))
-    return rows
-
-
-def dml(dmls):
-    conn = sqlite3.connect(db_path)
-    c = conn.cursor()
-
-    result = None
-    try:
-        for dml in dmls:
-            c.execute(dml[0], dml[1])
-            print("dml(sql=" + dml[0] + ", param=" + str(dml[1]) + ") -> " + str(c.fetchall()))
-        conn.commit()
-        result = c
-    except Exception:
-        conn.rollback()
-        traceback.print_exc()
-    conn.close()
-    return result
-
-
-def layout(obj):
-    obj.Layout()
-    upper = obj.GetParent()
-    while upper is not None:
-        upper.Layout()
-        upper = upper.GetParent()
+import main as m
 
 
 class ConsumeMe(wx.Panel):
@@ -95,7 +56,7 @@ class List(wx.Panel):
         sql += " INNER JOIN account a ON a.id = c.account_id "
         sql += " INNER JOIN category ct ON ct.id = c.category_id "
         sql += " GROUP BY c.date, a.id, ct.id "
-        rs = query(sql=sql)
+        rs = m.query(sql=sql)
         for r in rs:
             ids = r[0].split(",")
             date = r[1]
@@ -108,7 +69,7 @@ class List(wx.Panel):
             for i in range(0, len(ids)):
                 details.append((ids[i], names[i], values[i]))
             self.box.Add(Row(self).load_data(date=date, account=account, category=category, sum=sum, details=details))
-        layout(self)
+        m.layout(self)
 
         if event is not None:
             event.Skip()
@@ -130,7 +91,7 @@ class Live(wx.Panel):
             self.box.Remove(i)
             i += 1
         self.box.Add(Row(self).load_new())
-        layout(self)
+        m.layout(self)
 
         if event is not None:
             event.Skip()
@@ -185,7 +146,7 @@ class Row(wx.Panel):
         self.category_id = -1
         self.category.SetFont(font)
 
-        rows = query(" SELECT id FROM user WHERE name = ? ", ("me",))
+        rows = m.query(" SELECT id FROM user WHERE name = ? ", ("me",))
         if len(rows) > 0:
             self.user_id = rows[0][0]
         else:
@@ -249,7 +210,7 @@ class Row(wx.Panel):
             for i in range(0, len(children)):
                 if children[i].GetWindow().GetId() == self.GetId():
                     self.GetParent().box.Insert(index=i, window=Row(self.GetParent()).load_new())
-                    layout(self)
+                    m.layout(self)
                     break
         elif self.key_codes[len(self.key_codes) - 1] == wx.WXK_DELETE:
             msg = wx.MessageBox("sure to delete?", "Info", wx.OK | wx.CANCEL | wx.ICON_INFORMATION)
@@ -257,7 +218,7 @@ class Row(wx.Panel):
                 dmls = []
                 for detail_box in self.detail_boxes:
                     dmls.append((" DELETE FROM consume WHERE id = ? ", (detail_box.id,)))
-                result = dml(dmls)
+                result = m.dml(dmls)
                 if result is not None:
                     self.GetParent().box.Hide(self)
                     children = self.GetParent().box.GetChildren()
@@ -265,7 +226,7 @@ class Row(wx.Panel):
                         if children[i].GetWindow().GetId() == self.GetId():
                             self.GetParent().box.Remove(i)
                             break
-                    layout(self)
+                    m.layout(self)
         if event is not None:
             event.Skip()
 
@@ -310,7 +271,7 @@ class Row(wx.Panel):
             event.Skip()
 
     def check_account(self, event=None):
-        rows = query(" SELECT id FROM account WHERE name = ? ", (event.GetEventObject().GetValue(),))
+        rows = m.query(" SELECT id FROM account WHERE name = ? ", (event.GetEventObject().GetValue(),))
         if len(rows) == 0:
             self.account.SetForegroundColour(wx.RED)
         else:
@@ -321,7 +282,7 @@ class Row(wx.Panel):
             event.Skip()
 
     def check_category(self, event=None):
-        rows = query(" SELECT id FROM category WHERE name = ? ", (event.GetEventObject().GetValue(),))
+        rows = m.query(" SELECT id FROM category WHERE name = ? ", (event.GetEventObject().GetValue(),))
         if len(rows) == 0:
             self.category.SetForegroundColour(wx.RED)
         else:
@@ -362,7 +323,7 @@ class Row(wx.Panel):
 
         self.detail_boxes.append(detail_box)
 
-        layout(self)
+        m.layout(self)
 
     def process_detail_val(self, event=None):
         sum_val = 0
@@ -405,14 +366,14 @@ class Row(wx.Panel):
                 return
             if detail_box.id is not None:
                 dmls = [(" DELETE FROM consume WHERE id = ? ", (detail_box.id,))]
-                result = dml(dmls)
+                result = m.dml(dmls)
                 if result is None:
                     return
             self.detail_boxes.remove(detail_box)
             self.right_box.Hide(detail_box)
             self.right_box.Remove(detail_box)
             self.process_detail_val()
-            layout(self)
+            m.layout(self)
 
         elif self.key_codes[len(self.key_codes) - 3] == 308 and self.key_codes[len(self.key_codes) - 2] == 306 and self.key_codes[len(self.key_codes) - 1] == 83:
             self.save_or_update()
@@ -457,7 +418,7 @@ class Row(wx.Panel):
             dmls.append((sql, param))
 
         if len(dmls) > 0:
-            result = dml(dmls)
+            result = m.dml(dmls)
             if result is not None:
                 self.detail_boxes.clear()
                 if detail_id is None:
@@ -470,14 +431,14 @@ class Row(wx.Panel):
                     self.GetParent().update_data()
 
 
-# def main():
-#     app = wx.App()
-#     frame = wx.Frame(None, title='Main', size=(800, 600))
-#     ConsumeMe(parent=frame)
-#     frame.Center()
-#     frame.Show()
-#     app.MainLoop()
-#
-#
-# if __name__ == '__main__':
-#     main()
+def main():
+    app = wx.App()
+    frame = wx.Frame(None, title='Main', size=(800, 600))
+    ConsumeMe(parent=frame)
+    frame.Center()
+    frame.Show()
+    app.MainLoop()
+
+
+if __name__ == '__main__':
+    main()
