@@ -3,10 +3,11 @@ import sqlite3
 import re
 import datetime
 import traceback
+from main import db_path
 
 
 def query(sql, data=""):
-    conn = sqlite3.connect('../me.db')
+    conn = sqlite3.connect(db_path)
     c = conn.cursor()
 
     c.execute(sql, data)
@@ -17,7 +18,7 @@ def query(sql, data=""):
 
 
 def dml(dmls):
-    conn = sqlite3.connect('../me.db')
+    conn = sqlite3.connect(db_path)
     c = conn.cursor()
 
     result = None
@@ -243,7 +244,7 @@ class Row(wx.Panel):
             text_ctrl.SetInsertionPointEnd()
         elif self.key_codes[len(self.key_codes) - 2] == 308 and self.key_codes[len(self.key_codes) - 1] == 65:
             text_ctrl.SetSelection(0, len(text_ctrl.GetValue()))
-        elif self.key_codes[len(self.key_codes) - 2] == 308 and self.key_codes[len(self.key_codes) - 1] == 13:
+        elif self.key_codes[len(self.key_codes) - 3] == 308 and self.key_codes[len(self.key_codes) - 2] == 306 and self.key_codes[len(self.key_codes) - 1] == 13:
             children = self.GetParent().box.GetChildren()
             for i in range(0, len(children)):
                 if children[i].GetWindow().GetId() == self.GetId():
@@ -272,22 +273,25 @@ class Row(wx.Panel):
         if self.date.GetValue() is not None:
             split = self.date.GetValue().split("-")
             if len(split) == 3:
-                week_num = datetime.date(int(split[0]), int(split[1]), int(split[2])).isocalendar()[2]
-                if week_num == 1:
-                    week_num = "一"
-                elif week_num == 2:
-                    week_num = "二"
-                elif week_num == 3:
-                    week_num = "三"
-                elif week_num == 4:
-                    week_num = "四"
-                elif week_num == 5:
-                    week_num = "五"
-                elif week_num == 6:
-                    week_num = "六"
-                elif week_num == 7:
-                    week_num = "日"
-                self.week.SetValue("星期" + week_num)
+                try:
+                    week_num = datetime.date(int(split[0]), int(split[1]), int(split[2])).isocalendar()[2]
+                    if week_num == 1:
+                        week_num = "一"
+                    elif week_num == 2:
+                        week_num = "二"
+                    elif week_num == 3:
+                        week_num = "三"
+                    elif week_num == 4:
+                        week_num = "四"
+                    elif week_num == 5:
+                        week_num = "五"
+                    elif week_num == 6:
+                        week_num = "六"
+                    elif week_num == 7:
+                        week_num = "日"
+                    self.week.SetValue("星期" + week_num)
+                except Exception:
+                    wx.MessageBox("wrong date", "Info", wx.OK | wx.ICON_INFORMATION)
             else:
                 self.week.SetValue("")
 
@@ -457,20 +461,23 @@ class Row(wx.Panel):
             if result is not None:
                 self.detail_boxes.clear()
                 if detail_id is None:
-                    self.GetParent().reset()
-                    self.GetParent().parent_list.update_data()
+                    if type(self.GetParent()) == Live:
+                        self.GetParent().reset()
+                        self.GetParent().parent_list.update_data()
+                    elif type(self.GetParent()) == List:
+                        self.GetParent().update_data()
                 else:
                     self.GetParent().update_data()
 
 
-def main():
-    app = wx.App()
-    frame = wx.Frame(None, title='Main', size=(800, 600))
-    ConsumeMe(parent=frame)
-    frame.Center()
-    frame.Show()
-    app.MainLoop()
-
-
-if __name__ == '__main__':
-    main()
+# def main():
+#     app = wx.App()
+#     frame = wx.Frame(None, title='Main', size=(800, 600))
+#     ConsumeMe(parent=frame)
+#     frame.Center()
+#     frame.Show()
+#     app.MainLoop()
+#
+#
+# if __name__ == '__main__':
+#     main()
