@@ -2,12 +2,13 @@ import wx
 import re
 import datetime
 import main as m
+import wx.lib.scrolledpanel as scrolled
 
 
-class ConsumeMe(wx.Panel):
+class ConsumeMe(scrolled.ScrolledPanel):
 
-    def __init__(self, parent):
-        wx.Panel.__init__(self, parent)
+    def __init__(self, *args, **kwargs):
+        super(ConsumeMe, self).__init__(*args, **kwargs)
 
         self.box = wx.BoxSizer(wx.VERTICAL)
         header = Header(self)
@@ -16,6 +17,7 @@ class ConsumeMe(wx.Panel):
         live.parent_list = list
         self.box.AddMany([header, list, live])
         self.SetSizer(self.box)
+        self.SetupScrolling()
 
 
 class Header(wx.Panel):
@@ -227,6 +229,13 @@ class Row(wx.Panel):
                             self.GetParent().box.Remove(i)
                             break
                     m.layout(self)
+        elif self.key_codes[len(self.key_codes) - 1] == wx.WXK_F5:
+            upper = event.GetEventObject()
+            while upper is not None:
+                if type(upper) is List:
+                    upper.update_data()
+                    break
+                upper = upper.GetParent()
         if event is not None:
             event.Skip()
 

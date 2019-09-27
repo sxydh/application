@@ -51,15 +51,17 @@ class Main(wx.Frame):
     def __init__(self, *args, **kwargs):
         super(Main, self).__init__(*args, **kwargs)
         self.panel = wx.Panel(self)
-        self.box = wx.BoxSizer(wx.VERTICAL)
-        self.panel.SetSizer(self.box)
-        self.box.AddMany([ConsumeMe(self.panel)])
+        box = wx.BoxSizer(wx.VERTICAL)
+        self.panel.SetSizer(box)
+        box.AddMany([ConsumeMe(self.panel, size=(800, 600))])
 
 
 def main():
     app = wx.App()
-    frame = Main(None, title='Main', size=(800, 600))
+    frame = Main(None, title='Main')
+    frame.Center()
     frame.Show()
+    # frame.Maximize(True)
     app.MainLoop()
 
 
