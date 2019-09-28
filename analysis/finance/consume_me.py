@@ -12,12 +12,16 @@ class ConsumeMe(scrolled.ScrolledPanel):
         super(ConsumeMe, self).__init__(*args, **kwargs)
 
         self.box = wx.BoxSizer(wx.VERTICAL)
-        header = Header(self)
-        blank = wx.StaticText(self, size=(10, 20))
-        list = List(self)
-        live = Live(self)
         filter = Filter(self)
-        ConsumeMe.windows = [filter, blank, header, list, live]
+        ConsumeMe.windows.append(filter)
+        blank = wx.StaticText(self, size=(10, 20))
+        ConsumeMe.windows.append(blank)
+        header = Header(self)
+        ConsumeMe.windows.append(header)
+        list = List(self)
+        ConsumeMe.windows.append(list)
+        live = Live(self)
+        ConsumeMe.windows.append(live)
         self.box.AddMany(ConsumeMe.windows)
         self.SetSizer(self.box)
         self.SetupScrolling()
@@ -27,19 +31,103 @@ class ConsumeMe(scrolled.ScrolledPanel):
             if type(window) is tgt_type:
                 return window
 
+    def lay_out(self, event=None):
+        m.layout(self)
+        if event is not None:
+            event.Skip()
+
 
 class Filter(wx.Panel):
+    page_total = 0
+    page_offset = 0
+    page_limit = None
+
     def __init__(self, *args, **kwargs):
         super(Filter, self).__init__(*args, **kwargs)
+
+        width = 50
+        height = 25
         self.box = wx.BoxSizer(wx.HORIZONTAL)
         self.SetSizer(self.box)
-        refresh = wx.Button(self, wx.ID_ANY, label="刷新", size=(50, 20))
-        page_info = wx.StaticText(self, wx.ID_ANY, label="共 页   第 页", size=(100, 20), style=wx.ALIGN_CENTRE_HORIZONTAL | wx.ALIGN_CENTRE_VERTICAL)
-        top = wx.Button(self, wx.ID_ANY, label="首页", size=(50, 20))
-        bottom = wx.Button(self, wx.ID_ANY, label="末页", size=(50, 20))
-        pre_page = wx.Button(self, wx.ID_ANY, label="上一页", size=(50, 20))
-        next_page = wx.Button(self, wx.ID_ANY, label="下一页", size=(50, 20))
-        self.box.AddMany([refresh, page_info, top, bottom, pre_page, next_page])
+        self.page_limit = wx.ComboBox(self, pos=(width, height), value="10", choices=["10", "20", "30", "40", "50", "60", "70", "80", "90", "100"], style=wx.CB_READONLY)
+        Filter.page_limit = int(self.page_limit.GetValue())
+        self.refresh = wx.Button(self, wx.ID_ANY, label="刷新", size=(width, height))
+        self.page_info = wx.StaticText(self, wx.ID_ANY, label="", size=(width * 2, height), style=wx.ALIGN_CENTRE_HORIZONTAL)
+        self.bt_top = wx.Button(self, wx.ID_ANY, label="首页", size=(width, height))
+        self.bt_bottom = wx.Button(self, wx.ID_ANY, label="末页", size=(width, height))
+        self.bt_pre_page = wx.Button(self, wx.ID_ANY, label="上一页", size=(width, height))
+        self.bt_next_page = wx.Button(self, wx.ID_ANY, label="下一页", size=(width, height))
+        self.box.AddMany([self.page_limit, self.refresh, self.page_info, self.bt_top, self.bt_bottom, self.bt_pre_page, self.bt_next_page])
+
+        self.bind_evt()
+
+    def layout(self, event=None):
+        m.layout(self)
+        if event is not None:
+            event.Skip()
+
+    def bind_evt(self):
+        self.page_limit.Bind(wx.EVT_COMBOBOX, self.update_page_limit)
+        self.refresh.Bind(wx.EVT_BUTTON, lambda x: ConsumeMe.get_window(List).update_data())
+        self.bt_pre_page.Bind(wx.EVT_BUTTON, self.pre_page)
+        self.bt_next_page.Bind(wx.EVT_BUTTON, self.next_page)
+        self.bt_top.Bind(wx.EVT_BUTTON, self.top_page)
+        self.bt_bottom.Bind(wx.EVT_BUTTON, self.bottom_page)
+
+    def update_page_limit(self, event=None):
+        Filter.page_offset = 0
+        Filter.page_limit = int(event.GetEventObject().GetValue())
+        ConsumeMe.get_window(List).update_data()
+
+        if event is not None:
+            event.Skip()
+
+    def pre_page(self, event=None):
+        if Filter.page_offset == 0:
+            return
+        new_offset = Filter.page_offset - Filter.page_limit
+        if new_offset < 0:
+            new_offset = 0
+        Filter.page_offset = new_offset
+        ConsumeMe.get_window(List).update_data()
+
+        if event is not None:
+            event.Skip()
+
+    def next_page(self, event=None):
+        if Filter.page_offset + Filter.page_limit >= Filter.page_total:
+            return
+        Filter.page_offset += Filter.page_limit
+        ConsumeMe.get_window(List).update_data()
+
+        if event is not None:
+            event.Skip()
+
+    def update_total(self, value, event=None):
+        Filter.page_total = value
+        self.page_info.SetLabel("共" + str(value) + "条")
+
+        if event is not None:
+            event.Skip()
+
+    def top_page(self, event=None):
+        Filter.page_offset = 0
+        ConsumeMe.get_window(List).update_data()
+
+        if event is not None:
+            event.Skip()
+
+    def bottom_page(self, event=None):
+        div = Filter.page_total // Filter.page_limit
+        mod = Filter.page_total % Filter.page_limit
+        if mod == 0:
+            Filter.page_offset = (div - 1) * Filter.page_limit
+        else:
+            Filter.page_offset = div * Filter.page_limit
+        ConsumeMe.get_window(List).update_data()
+
+        if event is not None:
+            event.Skip()
 
 
 class Header(wx.Panel):
@@ -63,6 +151,11 @@ class Header(wx.Panel):
                                       style=wx.ALIGN_CENTRE_HORIZONTAL)
         self.box.AddMany([self.date, self.week, self.account, self.category])
 
+    def layout(self, event=None):
+        m.layout(self)
+        if event is not None:
+            event.Skip()
+
 
 class List(wx.Panel):
     def __init__(self, parent):
@@ -72,15 +165,25 @@ class List(wx.Panel):
 
         self.update_data()
 
+    def layout(self, event=None):
+        m.layout(self)
+        if event is not None:
+            event.Skip()
+
     def update_data(self, event=None):
         while len(self.box.GetChildren()) > 0:
             self.box.Hide(self.box.GetChildren()[0].GetWindow())
             self.box.Remove(0)
-        sql = " SELECT GROUP_CONCAT(c.id), c.date, a.name account, ct.name category, PRINTF(\"%.2f\", SUM(c.value) / 100.0) sum, GROUP_CONCAT(c.name) names, GROUP_CONCAT(PRINTF(\"%.2f\", c.value / 100.0)) \"values\" FROM consume c "
-        sql += " INNER JOIN account a ON a.id = c.account_id "
-        sql += " INNER JOIN category ct ON ct.id = c.category_id "
-        sql += " GROUP BY c.date, a.id, ct.id "
-        rs = m.query(sql=sql)
+        cdt = ""
+        sql = " SELECT GROUP_CONCAT(c.id), c.date, a.name account, ct.name category, PRINTF(\"%.2f\", SUM(c.value) / 100.0) sum, GROUP_CONCAT(c.name) names, GROUP_CONCAT(PRINTF(\"%.2f\", c.value / 100.0)) \"values\" FROM consume c " \
+              " INNER JOIN account a ON a.id = c.account_id " \
+              " INNER JOIN category ct ON ct.id = c.category_id " \
+              " GROUP BY c.date, a.id, ct.id " \
+              " ORDER BY c.date, a.id, ct.id "
+        sql += cdt
+        sqlc = " SELECT COUNT(0) FROM (" + sql + ") "
+        rs = m.query(sql=sql + " LIMIT ?, ? ", data=[Filter.page_offset, Filter.page_limit])
+        count = m.query(sql=sqlc)[0][0]
         for r in rs:
             ids = r[0].split(",")
             date = r[1]
@@ -93,6 +196,7 @@ class List(wx.Panel):
             for i in range(0, len(ids)):
                 details.append((ids[i], names[i], values[i]))
             self.box.Add(Row(self).load_data(date=date, account=account, category=category, sum=sum, details=details))
+        ConsumeMe.get_window(Filter).update_total(value=count)
         m.layout(self)
 
         if event is not None:
@@ -106,6 +210,11 @@ class Live(wx.Panel):
         self.box = wx.BoxSizer(wx.VERTICAL)
         self.box.Add(Row(self).load_new())
         self.SetSizer(self.box)
+
+    def layout(self, event=None):
+        m.layout(self)
+        if event is not None:
+            event.Skip()
 
     def reset(self, event=None):
         children = self.box.GetChildren()
@@ -140,30 +249,24 @@ class Row(wx.Panel):
         self.box.AddMany([self.left_box, self.right_box])
         self.SetSizer(self.box)
 
-        font = wx.Font(pointSize=10, family=wx.FONTFAMILY_DEFAULT, style=wx.FONTSTYLE_NORMAL,
-                       weight=wx.FONTWEIGHT_BOLD,
-                       encoding=wx.FONTENCODING_SYSTEM)
-        self.date = wx.TextCtrl(self, id=wx.ID_ANY, value="", size=(self.width_cell, self.height_cell),
-                                style=wx.TE_MULTILINE | wx.TE_NO_VSCROLL)
+        font = wx.Font(pointSize=10, family=wx.FONTFAMILY_DEFAULT, style=wx.FONTSTYLE_NORMAL, weight=wx.FONTWEIGHT_BOLD, encoding=wx.FONTENCODING_SYSTEM)
+        self.date = wx.TextCtrl(self, id=wx.ID_ANY, value="", size=(self.width_cell, self.height_cell))
         self.date.Bind(wx.EVT_KILL_FOCUS, self.check_date)
         self.date.Bind(wx.EVT_KEY_DOWN, self.date_shortcut)
         self.date.SetFont(font)
 
-        self.week = wx.TextCtrl(self, id=wx.ID_ANY, value="", size=(self.width_cell, self.height_cell),
-                                style=wx.TE_MULTILINE | wx.TE_NO_VSCROLL | wx.TE_READONLY)
+        self.week = wx.TextCtrl(self, id=wx.ID_ANY, value="", size=(self.width_cell, self.height_cell), style=wx.TE_READONLY)
         self.week.SetFont(font)
         self.week.SetBackgroundColour(self.readonly_color)
 
-        self.account = wx.TextCtrl(self, id=wx.ID_ANY, value="", size=(self.width_cell, self.height_cell),
-                                   style=wx.TE_MULTILINE | wx.TE_NO_VSCROLL)
+        self.account = wx.TextCtrl(self, id=wx.ID_ANY, value="", size=(self.width_cell, self.height_cell), style=wx.TE_MULTILINE | wx.TE_NO_VSCROLL)
         self.account.Bind(wx.EVT_KILL_FOCUS, self.check_account)
         self.account.Bind(wx.EVT_KEY_DOWN, self.account_shortcut)
         self.id_account = self.account.GetId()
         self.account_id = -1
         self.account.SetFont(font)
 
-        self.category = wx.TextCtrl(self, id=wx.ID_ANY, value="", size=(self.width_cell, self.height_cell),
-                                    style=wx.TE_MULTILINE | wx.TE_NO_VSCROLL)
+        self.category = wx.TextCtrl(self, id=wx.ID_ANY, value="", size=(self.width_cell, self.height_cell), style=wx.TE_MULTILINE | wx.TE_NO_VSCROLL)
         self.category.Bind(wx.EVT_KILL_FOCUS, self.check_category)
         self.category.Bind(wx.EVT_KEY_DOWN, self.category_shortcut)
         self.id_category = self.category.GetId()
@@ -174,16 +277,19 @@ class Row(wx.Panel):
         if len(rows) > 0:
             self.user_id = rows[0][0]
         else:
-            wx.MessageBox("SELECT id FROM user WHERE name = 'me' -> " + str(rows), "Info",
-                          wx.OK | wx.ICON_INFORMATION)
+            wx.MessageBox("SELECT id FROM user WHERE name = 'me' -> " + str(rows), "Info", wx.OK | wx.ICON_INFORMATION)
             self.GetTopLevelParent().Close()
 
-        self.sum = wx.TextCtrl(self, id=wx.ID_ANY, value="0.00", size=(self.width_cell, self.height_cell),
-                               style=wx.TE_MULTILINE | wx.TE_NO_VSCROLL | wx.TE_READONLY)
+        self.sum = wx.TextCtrl(self, id=wx.ID_ANY, value="0.00", size=(self.width_cell, self.height_cell), style=wx.TE_MULTILINE | wx.TE_NO_VSCROLL | wx.TE_READONLY)
         self.sum.SetFont(font)
         self.sum.SetBackgroundColour(self.readonly_color)
 
         self.left_box.AddMany([self.date, self.week, self.account, self.category, self.sum])
+
+    def layout(self, event=None):
+        m.layout(self)
+        if event is not None:
+            event.Skip()
 
     def category_shortcut(self, event=None):
         key_code = event.GetKeyCode()
@@ -250,7 +356,7 @@ class Row(wx.Panel):
                         if children[i].GetWindow().GetId() == self.GetId():
                             self.GetParent().box.Remove(i)
                             break
-                    m.layout(self)
+                    ConsumeMe.get_window(List).layout()
         elif self.key_codes[len(self.key_codes) - 1] == wx.WXK_F5:
             upper = event.GetEventObject()
             while upper is not None:
@@ -334,10 +440,10 @@ class Row(wx.Panel):
         self.category.SetValue(category)
         self.sum.SetValue(str(sum))
         for detail in details:
-            self.add_detail(id=detail[0], name=detail[1], value=detail[2])
+            self.add_detail(id=detail[0], name=detail[1], value=detail[2], layout=False)
         return self
 
-    def add_detail(self, id=None, name="", value=""):
+    def add_detail(self, id=None, name="", value="", layout=True):
         detail_box = wx.BoxSizer(wx.VERTICAL)
         detail_box.id = id
         self.right_box.Add(detail_box)
@@ -354,7 +460,8 @@ class Row(wx.Panel):
 
         self.detail_boxes.append(detail_box)
 
-        m.layout(self)
+        if layout:
+            self.GetParent().layout()
 
     def process_detail_val(self, event=None):
         sum_val = 0

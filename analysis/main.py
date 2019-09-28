@@ -5,7 +5,7 @@ from finance.consume_me import *
 import os
 
 
-def query(sql, data=""):
+def query(sql, data=[]):
     conn = sqlite3.connect(get_db_path())
     c = conn.cursor()
 
@@ -38,6 +38,7 @@ def layout(obj):
     obj.Layout()
     upper = obj.GetParent()
     while upper is not None:
+        print(str(type(upper)) + ".Layout()")
         upper.Layout()
         upper = upper.GetParent()
 
