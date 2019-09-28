@@ -56,6 +56,20 @@ class Main(wx.Frame):
         self.panel.SetSizer(box)
         box.AddMany([ConsumeMe(self.panel, size=(1000, 600))])
 
+        self.menu_bar = wx.MenuBar()
+        self.SetMenuBar(self.menu_bar)
+        self.init_menu()
+
+    def init_menu(self):
+        menu_table = wx.Menu()
+        item_consume_me = wx.MenuItem(menu_table, wx.ID_ANY, "个人消费")
+        menu_table.Bind(wx.EVT_MENU, self.to_consume_me, source=item_consume_me)
+        menu_table.Append(item_consume_me)
+        self.menu_bar.Append(menu_table, title="表")
+
+    def to_consume_me(self, event=None):
+        print(event)
+
 
 def main():
     app = wx.App()

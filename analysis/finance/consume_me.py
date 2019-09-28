@@ -12,6 +12,8 @@ class ConsumeMe(scrolled.ScrolledPanel):
         super(ConsumeMe, self).__init__(*args, **kwargs)
 
         self.box = wx.BoxSizer(wx.VERTICAL)
+        blank = wx.StaticText(self, size=(10, 20))
+        ConsumeMe.windows.append(blank)
         filter = Filter(self)
         ConsumeMe.windows.append(filter)
         blank = wx.StaticText(self, size=(10, 20))
@@ -142,11 +144,12 @@ class Header(wx.Panel):
         self.box = wx.BoxSizer(wx.HORIZONTAL)
         self.SetSizer(self.box)
 
-        self.date = wx.StaticText(self, label="Date", size=(self.width_cell, self.height_cell), style=wx.ALIGN_CENTRE_HORIZONTAL)
-        self.week = wx.StaticText(self, label="Week", size=(self.width_cell, self.height_cell), style=wx.ALIGN_CENTRE_HORIZONTAL)
-        self.account = wx.StaticText(self, label="Account", size=(self.width_cell, self.height_cell), style=wx.ALIGN_CENTRE_HORIZONTAL)
-        self.category = wx.StaticText(self, label="Category", size=(self.width_cell, self.height_cell), style=wx.ALIGN_CENTRE_HORIZONTAL)
-        self.box.AddMany([self.date, self.week, self.account, self.category])
+        self.date = wx.StaticText(self, label="日期", size=(self.width_cell, self.height_cell), style=wx.ALIGN_CENTRE_HORIZONTAL)
+        self.week = wx.StaticText(self, label="周", size=(self.width_cell, self.height_cell), style=wx.ALIGN_CENTRE_HORIZONTAL)
+        self.account = wx.StaticText(self, label="账户", size=(self.width_cell, self.height_cell), style=wx.ALIGN_CENTRE_HORIZONTAL)
+        self.category = wx.StaticText(self, label="分类", size=(self.width_cell, self.height_cell), style=wx.ALIGN_CENTRE_HORIZONTAL)
+        self.sum = wx.StaticText(self, label="总计", size=(self.width_cell, self.height_cell), style=wx.ALIGN_CENTRE_HORIZONTAL)
+        self.box.AddMany([self.date, self.week, self.account, self.category, self.sum])
 
     def layout(self, event=None):
         m.layout(self)
@@ -265,14 +268,14 @@ class Row(wx.Panel):
         self.week.SetFont(font)
         self.week.SetBackgroundColour(self.readonly_color)
 
-        self.account = wx.TextCtrl(self, id=wx.ID_ANY, value="", size=(self.width_cell, self.height_cell), style=wx.TE_MULTILINE | wx.TE_NO_VSCROLL)
+        self.account = wx.TextCtrl(self, id=wx.ID_ANY, value="", size=(self.width_cell, self.height_cell), style=wx.TE_PROCESS_ENTER)
         self.account.Bind(wx.EVT_KILL_FOCUS, self.check_account)
         self.account.Bind(wx.EVT_KEY_DOWN, self.account_shortcut)
         self.id_account = self.account.GetId()
         self.account_id = -1
         self.account.SetFont(font)
 
-        self.category = wx.TextCtrl(self, id=wx.ID_ANY, value="", size=(self.width_cell, self.height_cell), style=wx.TE_MULTILINE | wx.TE_NO_VSCROLL)
+        self.category = wx.TextCtrl(self, id=wx.ID_ANY, value="", size=(self.width_cell, self.height_cell), style=wx.TE_PROCESS_ENTER)
         self.category.Bind(wx.EVT_KILL_FOCUS, self.check_category)
         self.category.Bind(wx.EVT_KEY_DOWN, self.category_shortcut)
         self.id_category = self.category.GetId()
@@ -286,7 +289,7 @@ class Row(wx.Panel):
             wx.MessageBox("SELECT id FROM user WHERE name = 'me' -> " + str(rows), "Info", wx.OK | wx.ICON_INFORMATION)
             self.GetTopLevelParent().Close()
 
-        self.sum = wx.TextCtrl(self, id=wx.ID_ANY, value="0.00", size=(self.width_cell, self.height_cell), style=wx.TE_MULTILINE | wx.TE_NO_VSCROLL | wx.TE_READONLY)
+        self.sum = wx.TextCtrl(self, id=wx.ID_ANY, value="0.00", size=(self.width_cell, self.height_cell), style=wx.TE_READONLY)
         self.sum.SetFont(font)
         self.sum.SetBackgroundColour(self.readonly_color)
 
