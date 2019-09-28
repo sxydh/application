@@ -35,6 +35,7 @@ class ConsumeMe(scrolled.ScrolledPanel):
         m.layout(self)
         if event is not None:
             event.Skip()
+        return self
 
 
 class Filter(wx.Panel):
@@ -65,6 +66,7 @@ class Filter(wx.Panel):
         m.layout(self)
         if event is not None:
             event.Skip()
+        return self
 
     def bind_evt(self):
         self.page_limit.Bind(wx.EVT_COMBOBOX, self.update_page_limit)
@@ -140,21 +142,17 @@ class Header(wx.Panel):
         self.box = wx.BoxSizer(wx.HORIZONTAL)
         self.SetSizer(self.box)
 
-        self.date = wx.StaticText(self, label="Date", size=(self.width_cell, self.height_cell),
-                                  style=wx.ALIGN_CENTRE_HORIZONTAL)
-        self.week = wx.StaticText(self, label="Week", size=(self.width_cell, self.height_cell),
-                                  style=wx.ALIGN_CENTRE_HORIZONTAL)
-        self.account = wx.StaticText(self, label="Account", size=(self.width_cell, self.height_cell),
-                                     style=wx.ALIGN_CENTRE_HORIZONTAL)
-        self.category = wx.StaticText(self, label="Category",
-                                      size=(self.width_cell, self.height_cell),
-                                      style=wx.ALIGN_CENTRE_HORIZONTAL)
+        self.date = wx.StaticText(self, label="Date", size=(self.width_cell, self.height_cell), style=wx.ALIGN_CENTRE_HORIZONTAL)
+        self.week = wx.StaticText(self, label="Week", size=(self.width_cell, self.height_cell), style=wx.ALIGN_CENTRE_HORIZONTAL)
+        self.account = wx.StaticText(self, label="Account", size=(self.width_cell, self.height_cell), style=wx.ALIGN_CENTRE_HORIZONTAL)
+        self.category = wx.StaticText(self, label="Category", size=(self.width_cell, self.height_cell), style=wx.ALIGN_CENTRE_HORIZONTAL)
         self.box.AddMany([self.date, self.week, self.account, self.category])
 
     def layout(self, event=None):
         m.layout(self)
         if event is not None:
             event.Skip()
+        return self
 
 
 class List(wx.Panel):
@@ -169,8 +167,12 @@ class List(wx.Panel):
         m.layout(self)
         if event is not None:
             event.Skip()
+        return self
 
     def update_data(self, event=None):
+        """
+        Layout()
+        """
         while len(self.box.GetChildren()) > 0:
             self.box.Hide(self.box.GetChildren()[0].GetWindow())
             self.box.Remove(0)
@@ -215,8 +217,12 @@ class Live(wx.Panel):
         m.layout(self)
         if event is not None:
             event.Skip()
+        return self
 
     def reset(self, event=None):
+        """
+        Layout()
+        """
         children = self.box.GetChildren()
         i = 0
         for child in children:
@@ -290,6 +296,7 @@ class Row(wx.Panel):
         m.layout(self)
         if event is not None:
             event.Skip()
+        return self
 
     def category_shortcut(self, event=None):
         key_code = event.GetKeyCode()
@@ -440,10 +447,10 @@ class Row(wx.Panel):
         self.category.SetValue(category)
         self.sum.SetValue(str(sum))
         for detail in details:
-            self.add_detail(id=detail[0], name=detail[1], value=detail[2], layout=False)
+            self.add_detail(id=detail[0], name=detail[1], value=detail[2])
         return self
 
-    def add_detail(self, id=None, name="", value="", layout=True):
+    def add_detail(self, id=None, name="", value=""):
         detail_box = wx.BoxSizer(wx.VERTICAL)
         detail_box.id = id
         self.right_box.Add(detail_box)
@@ -457,9 +464,6 @@ class Row(wx.Panel):
         detail_value.Bind(wx.EVT_KILL_FOCUS, self.process_detail_val)
 
         self.detail_boxes.append(detail_box)
-
-        if layout:
-            self.GetParent().layout()
 
     def process_detail_val(self, event=None):
         sum_val = 0
@@ -495,6 +499,7 @@ class Row(wx.Panel):
                     not_empty += 0.5
             if len(self.detail_boxes) == not_empty:
                 self.add_detail()
+                self.GetParent().layout()
 
         elif self.key_codes[len(self.key_codes) - 1] == wx.WXK_DELETE:
             detail_box = self.get_detail_sizer(event.GetEventObject())
