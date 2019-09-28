@@ -6,18 +6,40 @@ import wx.lib.scrolledpanel as scrolled
 
 
 class ConsumeMe(scrolled.ScrolledPanel):
+    windows = []
 
     def __init__(self, *args, **kwargs):
         super(ConsumeMe, self).__init__(*args, **kwargs)
 
         self.box = wx.BoxSizer(wx.VERTICAL)
         header = Header(self)
+        blank = wx.StaticText(self, size=(10, 20))
         list = List(self)
         live = Live(self)
-        live.parent_list = list
-        self.box.AddMany([header, list, live])
+        filter = Filter(self)
+        ConsumeMe.windows = [filter, blank, header, list, live]
+        self.box.AddMany(ConsumeMe.windows)
         self.SetSizer(self.box)
         self.SetupScrolling()
+
+    def get_window(tgt_type):
+        for window in ConsumeMe.windows:
+            if type(window) is tgt_type:
+                return window
+
+
+class Filter(wx.Panel):
+    def __init__(self, *args, **kwargs):
+        super(Filter, self).__init__(*args, **kwargs)
+        self.box = wx.BoxSizer(wx.HORIZONTAL)
+        self.SetSizer(self.box)
+        refresh = wx.Button(self, wx.ID_ANY, label="刷新", size=(50, 20))
+        page_info = wx.StaticText(self, wx.ID_ANY, label="共 页   第 页", size=(100, 20), style=wx.ALIGN_CENTRE_HORIZONTAL | wx.ALIGN_CENTRE_VERTICAL)
+        top = wx.Button(self, wx.ID_ANY, label="首页", size=(50, 20))
+        bottom = wx.Button(self, wx.ID_ANY, label="末页", size=(50, 20))
+        pre_page = wx.Button(self, wx.ID_ANY, label="上一页", size=(50, 20))
+        next_page = wx.Button(self, wx.ID_ANY, label="下一页", size=(50, 20))
+        self.box.AddMany([refresh, page_info, top, bottom, pre_page, next_page])
 
 
 class Header(wx.Panel):
@@ -433,7 +455,7 @@ class Row(wx.Panel):
                 if detail_id is None:
                     if type(self.GetParent()) == Live:
                         self.GetParent().reset()
-                        self.GetParent().parent_list.update_data()
+                        ConsumeMe.get_window(List).update_data()
                     elif type(self.GetParent()) == List:
                         self.GetParent().update_data()
                 else:

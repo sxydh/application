@@ -53,12 +53,12 @@ class Main(wx.Frame):
         self.panel = wx.Panel(self)
         box = wx.BoxSizer(wx.VERTICAL)
         self.panel.SetSizer(box)
-        box.AddMany([ConsumeMe(self.panel, size=(800, 600))])
+        box.AddMany([ConsumeMe(self.panel, size=(1000, 600))])
 
 
 def main():
     app = wx.App()
-    frame = Main(None, title='Main')
+    frame = Main(None, title='Main', size=(1000, 600))
     frame.Center()
     frame.Show()
     # frame.Maximize(True)
