@@ -31,7 +31,7 @@ class ConsumeMe(scrolled.ScrolledPanel):
             if type(window) is tgt_type:
                 return window
 
-    def lay_out(self, event=None):
+    def layout(self, event=None):
         m.layout(self)
         if event is not None:
             event.Skip()
@@ -197,7 +197,7 @@ class List(wx.Panel):
                 details.append((ids[i], names[i], values[i]))
             self.box.Add(Row(self).load_data(date=date, account=account, category=category, sum=sum, details=details))
         ConsumeMe.get_window(Filter).update_total(value=count)
-        m.layout(self)
+        self.layout()
 
         if event is not None:
             event.Skip()
@@ -224,7 +224,7 @@ class Live(wx.Panel):
             self.box.Remove(i)
             i += 1
         self.box.Add(Row(self).load_new())
-        m.layout(self)
+        self.layout()
 
         if event is not None:
             event.Skip()
@@ -250,7 +250,7 @@ class Row(wx.Panel):
         self.SetSizer(self.box)
 
         font = wx.Font(pointSize=10, family=wx.FONTFAMILY_DEFAULT, style=wx.FONTSTYLE_NORMAL, weight=wx.FONTWEIGHT_BOLD, encoding=wx.FONTENCODING_SYSTEM)
-        self.date = wx.TextCtrl(self, id=wx.ID_ANY, value="", size=(self.width_cell, self.height_cell))
+        self.date = wx.TextCtrl(self, id=wx.ID_ANY, value="", size=(self.width_cell, self.height_cell), style=wx.TE_PROCESS_ENTER)
         self.date.Bind(wx.EVT_KILL_FOCUS, self.check_date)
         self.date.Bind(wx.EVT_KEY_DOWN, self.date_shortcut)
         self.date.SetFont(font)
@@ -340,7 +340,7 @@ class Row(wx.Panel):
             for i in range(0, len(children)):
                 if children[i].GetWindow().GetId() == self.GetId():
                     self.GetParent().box.Insert(index=i, window=Row(self.GetParent()).load_new())
-                    m.layout(self)
+                    ConsumeMe.get_window(List).layout()
                     break
         elif self.key_codes[len(self.key_codes) - 1] == wx.WXK_DELETE:
             msg = wx.MessageBox("sure to delete?", "Info", wx.OK | wx.CANCEL | wx.ICON_INFORMATION)
@@ -448,10 +448,8 @@ class Row(wx.Panel):
         detail_box.id = id
         self.right_box.Add(detail_box)
 
-        detail_name = wx.TextCtrl(self, id=wx.ID_ANY, value=name, size=(self.width_cell / 2, self.height_cell / 2),
-                                  style=wx.TE_PROCESS_ENTER)
-        detail_value = wx.TextCtrl(self, id=wx.ID_ANY, value=value, size=(self.width_cell / 2, self.height_cell / 2),
-                                   style=wx.TE_PROCESS_ENTER)
+        detail_name = wx.TextCtrl(self, id=wx.ID_ANY, value=name, size=(self.width_cell / 2, self.height_cell / 2), style=wx.TE_PROCESS_ENTER)
+        detail_value = wx.TextCtrl(self, id=wx.ID_ANY, value=value, size=(self.width_cell / 2, self.height_cell / 2), style=wx.TE_PROCESS_ENTER)
         detail_box.AddMany([detail_name, detail_value])
 
         detail_name.Bind(wx.EVT_KEY_DOWN, self.detail_shortcut)
@@ -511,7 +509,7 @@ class Row(wx.Panel):
             self.right_box.Hide(detail_box)
             self.right_box.Remove(detail_box)
             self.process_detail_val()
-            m.layout(self)
+            self.GetParent().layout()
 
         elif self.key_codes[len(self.key_codes) - 3] == 308 and self.key_codes[len(self.key_codes) - 2] == 306 and self.key_codes[len(self.key_codes) - 1] == 83:
             self.save_or_update()
