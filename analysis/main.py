@@ -76,6 +76,7 @@ class Main(wx.Frame):
         menu_table.Bind(wx.EVT_MENU, self.to_account, source=item_account)
         menu_table.Bind(wx.EVT_MENU, self.to_user, source=item_user)
         menu_table.Append(item_consume_me)
+        menu_table.AppendSeparator()
         menu_table.Append(item_account)
         menu_table.Append(item_user)
         self.menu_bar.Append(menu_table, title="财务")
