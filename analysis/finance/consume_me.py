@@ -9,8 +9,12 @@ class ConsumeMe(scrolled.ScrolledPanel):
     windows = []
 
     def __init__(self, *args, **kwargs):
+        """
+        Will clear Consume.windows
+        """
         super(ConsumeMe, self).__init__(*args, **kwargs)
 
+        ConsumeMe.windows = []
         self.box = wx.BoxSizer(wx.VERTICAL)
         blank = wx.StaticText(self, size=(10, 20))
         ConsumeMe.windows.append(blank)
@@ -46,7 +50,14 @@ class Filter(wx.Panel):
     page_limit = None
 
     def __init__(self, *args, **kwargs):
+        """
+        Will init Filter's constants
+        """
         super(Filter, self).__init__(*args, **kwargs)
+
+        Filter.page_total = 0
+        Filter.page_offset = 0
+        Filter.page_limit = None
 
         width = 50
         height = 25
@@ -556,8 +567,7 @@ class Row(wx.Panel):
                 sql += " WHERE id = ? "
             for val in param:
                 if val is None or str(val) == "":
-                    wx.MessageBox("there is null value in param", "Info",
-                                  wx.OK | wx.ICON_INFORMATION)
+                    wx.MessageBox("there is null value in param", "Info", wx.OK | wx.ICON_INFORMATION)
                     return
             dmls.append((sql, param))
 
