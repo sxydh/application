@@ -9,7 +9,7 @@ row_height = 20
 readonly_color = "#919191"
 
 
-class User(scrolled.ScrolledPanel):
+class User(wx.Panel):
     windows = []
 
     def __init__(self, *args, **kwargs):
@@ -33,7 +33,6 @@ class User(scrolled.ScrolledPanel):
         User.windows.append(list)
         self.box.AddMany(User.windows)
         self.SetSizer(self.box)
-        self.SetupScrolling()
 
     def get_window(tgt_type):
         for window in User.windows:

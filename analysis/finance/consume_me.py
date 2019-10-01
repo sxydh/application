@@ -5,7 +5,7 @@ import main as m
 import wx.lib.scrolledpanel as scrolled
 
 
-class ConsumeMe(scrolled.ScrolledPanel):
+class ConsumeMe(wx.Panel):
     windows = []
 
     def __init__(self, *args, **kwargs):
@@ -30,7 +30,7 @@ class ConsumeMe(scrolled.ScrolledPanel):
         ConsumeMe.windows.append(live)
         self.box.AddMany(ConsumeMe.windows)
         self.SetSizer(self.box)
-        self.SetupScrolling()
+        # self.SetupScrolling()
 
     def get_window(tgt_type):
         for window in ConsumeMe.windows:
@@ -63,7 +63,7 @@ class Filter(wx.Panel):
         height = 25
         self.box = wx.BoxSizer(wx.HORIZONTAL)
         self.SetSizer(self.box)
-        self.page_limit = wx.ComboBox(self, pos=(width, height), value="10", choices=["10", "20", "30", "40", "50", "60", "70", "80", "90", "100"], style=wx.CB_READONLY)
+        self.page_limit = wx.ComboBox(self, pos=(width, height), value="20", choices=["10", "20", "30", "40", "50", "60", "70", "80", "90", "100"], style=wx.CB_READONLY)
         Filter.page_limit = int(self.page_limit.GetValue())
         self.refresh = wx.Button(self, wx.ID_ANY, label="刷新", size=(width, height))
         self.page_info = wx.StaticText(self, wx.ID_ANY, label="", size=(width * 2, height), style=wx.ALIGN_CENTRE_HORIZONTAL)
@@ -377,7 +377,7 @@ class Row(wx.Panel):
                         if children[i].GetWindow().GetId() == self.GetId():
                             self.GetParent().box.Remove(i)
                             break
-                    ConsumeMe.get_window(List).layout()
+                    ConsumeMe.get_window(List).update_data()
         elif self.key_codes[len(self.key_codes) - 1] == wx.WXK_F5:
             upper = event.GetEventObject()
             while upper is not None:
@@ -578,11 +578,7 @@ class Row(wx.Panel):
                 if detail_id is None:
                     if type(self.GetParent()) == Live:
                         self.GetParent().reset()
-                        ConsumeMe.get_window(List).update_data()
-                    elif type(self.GetParent()) == List:
-                        self.GetParent().update_data()
-                else:
-                    self.GetParent().update_data()
+                ConsumeMe.get_window(List).update_data()
 
 
 def main():

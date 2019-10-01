@@ -9,7 +9,7 @@ row_height = 20
 readonly_color = "#919191"
 
 
-class Account(scrolled.ScrolledPanel):
+class Account(wx.Panel):
     windows = []
 
     def __init__(self, *args, **kwargs):
@@ -31,9 +31,10 @@ class Account(scrolled.ScrolledPanel):
         Account.windows.append(header)
         list = List(self)
         Account.windows.append(list)
+        live = Live(self)
+        Account.windows.append(live)
         self.box.AddMany(Account.windows)
         self.SetSizer(self.box)
-        self.SetupScrolling()
 
     def get_window(tgt_type):
         for window in Account.windows:
@@ -211,6 +212,37 @@ class List(wx.Panel):
             event.Skip()
 
 
+class Live(wx.Panel):
+    def __init__(self, parent):
+        wx.Panel.__init__(self, parent)
+
+        self.box = wx.BoxSizer(wx.VERTICAL)
+        self.box.Add(Row(self))
+        self.SetSizer(self.box)
+
+    def layout(self, event=None):
+        m.layout(self)
+        if event is not None:
+            event.Skip()
+        return self
+
+    def reset(self, event=None):
+        """
+        Layout()
+        """
+        children = self.box.GetChildren()
+        i = 0
+        for child in children:
+            self.box.Hide(child.GetWindow())
+            self.box.Remove(i)
+            i += 1
+        self.box.Add(Row(self))
+        self.layout()
+
+        if event is not None:
+            event.Skip()
+
+
 class Row(wx.Panel):
 
     def __init__(self, parent):
@@ -248,6 +280,7 @@ class Row(wx.Panel):
         rows = m.query(" SELECT id FROM user WHERE name = ? ", (event.GetEventObject().GetValue(),))
         if len(rows) == 0:
             wx.MessageBox("wrong user name", "Info", wx.OK | wx.ICON_INFORMATION)
+            self.user_name.SetValue("")
 
         if event is not None:
             event.Skip()
@@ -275,6 +308,20 @@ class Row(wx.Panel):
                     self.GetParent().box.Insert(index=i, window=Row(self.GetParent()))
                     Account.get_window(List).layout()
                     break
+        elif self.key_codes[len(self.key_codes) - 1] == wx.WXK_DELETE:
+            msg = wx.MessageBox("sure to delete?", "Info", wx.OK | wx.CANCEL | wx.ICON_INFORMATION)
+            if msg == 4:
+                dmls = []
+                dmls.append((" DELETE FROM account WHERE id = ? ", (self.account_id,)))
+                result = m.dml(dmls)
+                if result is not None:
+                    self.GetParent().box.Hide(self)
+                    children = self.GetParent().box.GetChildren()
+                    for i in range(0, len(children)):
+                        if children[i].GetWindow().GetId() == self.GetId():
+                            self.GetParent().box.Remove(i)
+                            break
+                    Account.get_window(List).update_data()
 
         if event is not None:
             event.Skip()
@@ -302,6 +349,8 @@ class Row(wx.Panel):
             sql = " INSERT INTO account (number, name, ctime, utime, user_id) " \
                   " VALUES (?, ?, DATETIME(CURRENT_TIMESTAMP,'localtime'), DATETIME(CURRENT_TIMESTAMP,'localtime'), ?) "
             m.dml([(sql, (self.number.GetValue(), self.name.GetValue(), self.user_id))])
+            if type(self.GetParent()) == Live:
+                self.GetParent().reset()
         else:
             sql = " UPDATE account  SET utime = DATETIME(CURRENT_TIMESTAMP,'localtime') " \
                   ", number = ? " \
@@ -309,7 +358,7 @@ class Row(wx.Panel):
                   ", user_id = ? " \
                   " WHERE id = ? "
             m.dml([(sql, (self.number.GetValue(), self.name.GetValue(), self.user_id, self.account_id))])
-        self.GetParent().update_data()
+        Account.get_window(List).update_data()
 
 
 def main():
