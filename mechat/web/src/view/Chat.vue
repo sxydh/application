@@ -127,14 +127,15 @@ export default {
           list.html("");
           return true;
         case "HELP":
-          let help =
-            "use the following instruction to switch to the corresponding mode before sending a message <br/>";
-          help += "{{LIST}}: get available users <br/>";
-          help +=
-            "{{GET}}: request to establish a connection with the specific or random user <br/>";
-          help += "{{POST}}: message sending mode <br/>";
-          help += "{{LEAVE}}: disconnect <br/>";
-          help += "{{CLEAR}}: delete history message <br/>";
+          let help = ""
+           + "▪ ctrl + enter key to send commands or messages <br/>"
+           + "▪ you must select a mode before sending a message <br/>"
+           + "▪ use the following command to switch to the corresponding mode <br/>"
+           + "&nbsp;&nbsp;- {{LIST}}: you can send anything to get available users <br/>"
+           + "&nbsp;&nbsp;- {{GET}}: send target id or nothing to establish a connection with the specific or random user correspondingly <br/>"
+           + "&nbsp;&nbsp;- {{POST}}: send a message to the user you have connected to <br/>"
+           + "&nbsp;&nbsp;- {{LEAVE}}: you can send anything to disconnect <br/>"
+           + "&nbsp;&nbsp;- {{CLEAR}}: delete history message <br/>";
           this.system.history = help;
           this.appendSystemHistory();
           return true;
