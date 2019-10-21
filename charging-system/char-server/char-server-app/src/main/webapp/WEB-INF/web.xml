@@ -15,7 +15,7 @@
     </error-page>
     <filter>
         <filter-name>gateFilter</filter-name>
-        <filter-class>cn.net.bhe.chargingsystem.app.filter.GateFilter</filter-class>
+        <filter-class>charserver.cn.net.bhe.app.filter.GateFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>gateFilter</filter-name>
@@ -23,7 +23,7 @@
     </filter-mapping>
     <filter>
         <filter-name>attrFilter</filter-name>
-        <filter-class>cn.net.bhe.chargingsystem.app.filter.AttrFilter</filter-class>
+        <filter-class>charserver.cn.net.bhe.app.filter.AttrFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>attrFilter</filter-name>
@@ -31,7 +31,7 @@
     </filter-mapping>
     <filter>
         <filter-name>corsFilter</filter-name>
-        <filter-class>cn.net.bhe.chargingsystem.app.filter.CORSFilter</filter-class>
+        <filter-class>charserver.cn.net.bhe.app.filter.CORSFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>corsFilter</filter-name>

@@ -20,7 +20,7 @@
        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd  
        ">
-    <context:component-scan base-package="cn.net.bhe.chargingsystem.app.*" />
+    <context:component-scan base-package="charserver.cn.net.bhe.app.*" />
     <bean
         id="propertyConfigurer" 
         class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -103,7 +103,7 @@
             ref="dataSource" />
         <property name="packagesToScan">
             <list>
-                <value>cn.net.bhe.chargingsystem.app.entity</value>
+                <value>charserver.cn.net.bhe.app.entity</value>
             </list>
         </property>
         <property name="hibernateProperties">
@@ -152,7 +152,7 @@
     <aop:config expose-proxy="true">
         <aop:pointcut
             id="txPointcut"
-            expression="execution(* cn.net.bhe.chargingsystem.app.service.*.*(..))" />
+            expression="execution(* charserver.cn.net.bhe.app.service.*.*(..))" />
         <aop:advisor
             advice-ref="txAdvice"
             pointcut-ref="txPointcut" />
