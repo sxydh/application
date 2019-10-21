@@ -15,9 +15,4 @@
     </properties>
     <dependencies>
     </dependencies>
-    <modules>
-        <module>app</module>
-        <module>manage</module>
-        <module>common</module>
-    </modules>
 </project>
