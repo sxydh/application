@@ -4,7 +4,7 @@ dispatch:
     tokenHeader: authorization
 logging:
     level:
-        cn.net.bhe.chargingsystem.manage: debug
+        charserver.cn.net.bhe.manage: debug
 mybatis:
     configuration:
         jdbc-type-for-null: 'null'
