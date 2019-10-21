@@ -296,6 +296,6 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>app</finalName>
+        <finalName>char-server-app</finalName>
     </build>
 </project>
