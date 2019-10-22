@@ -4,5 +4,5 @@ const prodEnv = require('./prod.env')
 
 module.exports = merge(prodEnv, {
   NODE_ENV: '"development"',
-  API_ROOT: '"http://www.bhe.net.cn:5555/char-server-app"'
+  API_ROOT: '"http://www.bhe.net.cn:50100/char-server-app"'
 })

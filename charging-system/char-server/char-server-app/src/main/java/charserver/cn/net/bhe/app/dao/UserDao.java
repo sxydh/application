@@ -1,5 +1,6 @@
 package charserver.cn.net.bhe.app.dao;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
@@ -98,6 +99,13 @@ public class UserDao extends BaseDao {
                 .setParameter("ip", user.get("ip"))
                 //
                 .setParameter("id", user.get("id")).executeUpdate();
+    }
+    
+    public BigInteger userCount(int type) {
+        String sql = " SELECT COUNT(id) FROM CS_USER WHERE type = :type ";
+        return (BigInteger)getSession().createSQLQuery(sql)
+                //
+                .setParameter("type", type).uniqueResult();
     }
 
 }

@@ -9,12 +9,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.beanutils.ConvertUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import charserver.cn.net.bhe.app.service.UserService;
 import charserver.cn.net.bhe.common.dict.Const;
 import charserver.cn.net.bhe.common.exception.BusinessException;
 
@@ -112,6 +116,14 @@ public class Prop {
             LOGGER.error(Const.LOGGER_TAG_ERR_BUSINESS, boote);
             System.exit(0);
         }
+    }
+    
+    @Autowired
+    private UserService userService;
+
+    @PostConstruct
+    private void initUser() {
+        userService.init();
     }
 
     /** Use with caution. */

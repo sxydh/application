@@ -1,5 +1,5 @@
 'use strict'
 module.exports = {
   NODE_ENV: '"production"',
-  API_ROOT: '"http://www.bhe.net.cn:5555/app"'
+  API_ROOT: '"http://www.bhe.net.cn:50100/char-server-app"'
 }

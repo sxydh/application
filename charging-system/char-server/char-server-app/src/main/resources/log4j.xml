@@ -18,7 +18,7 @@
         class="org.apache.log4j.DailyRollingFileAppender">
         <param
             name="File"
-            value="${catalina.home}/logs/keep.log" />
+            value="${catalina.home}/logs/char-server-app.log" />
         <param
             name="DatePattern"
             value=".yyyy-MM-dd" />

@@ -15,7 +15,7 @@ import charserver.cn.net.bhe.app.service.WalletService;
 public class Timer {
 
     @Autowired
-    private WalletService walletServie;
+    private WalletService walletService;
     static Logger LOGGER = LoggerFactory.getLogger(Timer.class);
 
     @Scheduled(fixedDelay = Prop.ORDER_UNPAID_TIMER)
@@ -23,9 +23,9 @@ public class Timer {
         if (!Prop.TIMER_ENABLED) {
             return;
         }
-        List<String> ids = walletServie.unpaidOrderIdList();
+        List<String> ids = walletService.unpaidOrderIdList();
         for (String id : ids) {
-            walletServie.unpaidOrderStatusUpdate(id);
+            walletService.unpaidOrderStatusUpdate(id);
         }
     }
 
