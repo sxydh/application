@@ -72,9 +72,9 @@ public interface UserMapper {
             //
             + " SELECT u.id \"id\", u.phone \"phone\", u.name \"name\", u.sex \"sex\", u.age \"age\", u.address \"address\", u.type \"type\", u.role \"role\", u.status \"status\", u.updatetime \"updatetime\", u.createtime \"createtime\", u.ip \"ip\", nd.name \"area\" FROM CS_USER u "
             //
-            + " INNER JOIN CS_USER_REF_NODE ref ON ref.user_id = u.id "
+            + " LEFT JOIN CS_USER_REF_NODE ref ON ref.user_id = u.id "
             //
-            + " INNER JOIN CS_NODE nd ON nd.id = ref.node_id "
+            + " LEFT JOIN CS_NODE nd ON nd.id = ref.node_id "
             //
             + " WHERE 1 = 1 "
             //
