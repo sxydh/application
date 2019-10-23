@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import charserver.cn.net.bhe.app.service.NodeService;
 import charserver.cn.net.bhe.app.service.UserService;
 import charserver.cn.net.bhe.common.dict.Const;
 import charserver.cn.net.bhe.common.exception.BusinessException;
@@ -120,10 +121,13 @@ public class Prop {
     
     @Autowired
     private UserService userService;
+    @Autowired
+    private NodeService nodeService;
 
     @PostConstruct
-    private void initUser() {
+    private void initData() {
         userService.init();
+        nodeService.init();
     }
 
     /** Use with caution. */

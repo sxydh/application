@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import cn.net.bhe.utils.main.DateUtils;
+import cn.net.bhe.utils.main.MathUtils;
 
 @Entity
 @Table(name = "CS_WALLET")
@@ -20,16 +21,20 @@ public class Wallet implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
-    private String num;
+    private String num = MathUtils.randomNum(17);
     @Column(name = "user_id")
     private Integer userId;
-    private Integer credit;
-    private Integer balance;
-    private Date updatetime;
-    private Date createtime;
+    private Integer credit = 0;
+    private Integer balance = 0;
+    private Date updatetime = new Date();
+    private Date createtime = new Date();
 
     public Wallet() {
 
+    }
+    
+    public Wallet(int userId) {
+        this.userId = userId;
     }
 
     public static long getSerialversionuid() {

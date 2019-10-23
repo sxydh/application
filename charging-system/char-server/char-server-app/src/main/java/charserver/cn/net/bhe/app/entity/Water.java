@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import cn.net.bhe.utils.main.DateUtils;
+import cn.net.bhe.utils.main.MathUtils;
 
 @Entity
 @Table(name = "CS_WATER")
@@ -21,17 +22,22 @@ public class Water implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
     @Column(name = "eqm_num")
-    private String eqmNum;
+    private String eqmNum = MathUtils.randomNum(11);
     @Column(name = "user_id")
     private Integer userId;
     @Column(name = "old_value")
-    private Integer oldValue;
-    private Integer newValue;
-    private Date updatetime;
-    private Date createtime;
+    private Integer oldValue = 0;
+    @Column(name = "new_value")
+    private Integer newValue = 0;
+    private Date updatetime = new Date();
+    private Date createtime = new Date();
 
     public Water() {
 
+    }
+    
+    public Water(int userId){
+        this.userId = userId;
     }
 
     public static long getSerialversionuid() {

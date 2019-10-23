@@ -13,6 +13,7 @@ import javax.persistence.Table;
 import org.apache.commons.lang3.StringUtils;
 
 import cn.net.bhe.utils.main.DateUtils;
+import cn.net.bhe.utils.main.MD5Utils;
 
 @Entity
 @Table(name = "CS_USER")
@@ -22,21 +23,26 @@ public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
-    private String phone;
-    private String name;
-    private String password;
-    private Integer sex;
-    private Integer age;
-    private String address;
+    private String phone = "15100000000";
+    private String name = "init";
+    private String password = MD5Utils.toLowerStr("000000");
+    private Integer sex = 1;
+    private Integer age = 30;
+    private String address = "unknown";
     private Integer type;
     private Integer role;
-    private Integer status;
-    private Date updatetime;
-    private Date createtime;
-    private String ip;
+    private Integer status = 1;
+    private Date updatetime = new Date();
+    private Date createtime = new Date();
+    private String ip = "127.0.0.1";
 
     public User() {
 
+    }
+    
+    public User(int type, int role) {
+        this.type = type;
+        this.role = role;
     }
 
     public User(Map<String, Object> map) {

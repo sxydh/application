@@ -25,7 +25,6 @@ import charserver.cn.net.bhe.app.entity.Water;
 import charserver.cn.net.bhe.common.dict.K;
 import charserver.cn.net.bhe.common.exception.BusinessException;
 import charserver.cn.net.bhe.common.exception.ExpException;
-import cn.net.bhe.utils.main.MD5Utils;
 import cn.net.bhe.utils.main.MathUtils;
 
 @Service
@@ -211,38 +210,22 @@ public class UserService {
     public void init(){
         BigInteger count = userDao.userCount(1);
         if (count.compareTo(new BigInteger("0")) == 0) {
-            User manage = new User();
-            manage.setPhone("15100000000");
-            manage.setName("init");
-            manage.setPassword(MD5Utils.toLowerStr("000000"));
-            manage.setSex(1);
-            manage.setAge(30);
-            manage.setAddress("unknown");
-            manage.setType(1);
-            manage.setRole(0);
-            manage.setStatus(1);
-            manage.setUpdatetime(new Date());
-            manage.setCreatetime(new Date());
-            manage.setIp("127.0.0.1");
-            userDao.save(manage);
+            User manage = new User(1, 0);
+            Integer userId = (Integer) userDao.save(manage);
+            Wallet wallet = new Wallet(userId);
+            Water water = new Water(userId);
+            userDao.save(wallet);
+            userDao.save(water);
         }
         
         count = userDao.userCount(2);
         if (count.compareTo(new BigInteger("0")) == 0) {
-            User app = new User();
-            app.setPhone("15100000000");
-            app.setName("init");
-            app.setPassword(MD5Utils.toLowerStr("000000"));
-            app.setSex(1);
-            app.setAge(30);
-            app.setAddress("unknown");
-            app.setType(2);
-            app.setRole(1);
-            app.setStatus(1);
-            app.setUpdatetime(new Date());
-            app.setCreatetime(new Date());
-            app.setIp("127.0.0.1");
-            userDao.save(app);
+            User app = new User(2, 1);
+            Integer userId = (Integer) userDao.save(app);
+            Wallet wallet = new Wallet(userId);
+            Water water = new Water(userId);
+            userDao.save(wallet);
+            userDao.save(water);
         }
         
     }
