@@ -6,7 +6,6 @@ import myHttp from '../utils/myHttp'
 Vue.use(Router)
 
 let router = new Router({
-    mode: "history",
     routes: [
         {
             path: '/',
