@@ -78,7 +78,7 @@ public class WalletService {
         returnOrder.put("id", order.getId());
         returnOrder.put("status", order.getStatus());
         returnOrder.put("greenpay_id", order.getGreenpayId());
-        returnOrder.put("qr_code", "http://localhost:8080/app/images/QR_code.png");
+        returnOrder.put("qr_code", "http://www.bhe.net.cn:50100/char-server-app/images/QR_code.png");
         result.put("order", returnOrder);
         return result;
     }
