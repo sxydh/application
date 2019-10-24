@@ -77,7 +77,7 @@ public class WalletController {
     @ResponseBody
     public Object qrCodeGet(HttpServletRequest request) {
         Rt rt = Rt.suc();
-        rt.setData("http://localhost:8080/app/images/QR_code.png");
+        rt.setData("http://www.bhe.net.cn:50100/char-server-app/images/QR_code.png");
         return rt;
     }
 
