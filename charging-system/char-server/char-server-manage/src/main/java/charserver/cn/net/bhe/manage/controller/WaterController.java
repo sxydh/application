@@ -28,5 +28,12 @@ public class WaterController {
         rt.setData(waterService.list(rq_w));
         return rt;
     }
+    
+    @RequestMapping(value = "/log/list", method = { RequestMethod.POST })
+    public Rt logList(@RequestBody Map<String, Object> rq_w) {
+        Rt rt = Rt.suc();
+        rt.setData(waterService.logList(rq_w));
+        return rt;
+    }
 
 }

@@ -112,7 +112,7 @@ export default {
     },
     async recharge() {
       let param = Object.assign({}, this.rechargeInfo);
-      param.value = parseInt(param.value);
+      param.value = parseInt(param.value) * 100;
 
       this.rechargeInfo.visible = false;
       this.walletPage.loading = true;

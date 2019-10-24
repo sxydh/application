@@ -124,7 +124,7 @@ export default {
       this.waterLogPage.offset = this.waterLogPage.limit * --posit;
 
       let data = Object.assign({}, this.waterLogPage, this.search);
-      data.num = this.water.num;
+      data.eqmNum = this.water.eqmNum;
 
       if (data.date) {
         data.startDate = data.date[0];

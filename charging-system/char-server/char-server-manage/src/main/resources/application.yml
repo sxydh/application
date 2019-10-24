@@ -3,8 +3,7 @@ dispatch:
         time: 3600
     tokenHeader: authorization
 logging:
-    level:
-        charserver.cn.net.bhe.manage: debug
+    config: classpath:logback-spring.xml
 mybatis:
     configuration:
         jdbc-type-for-null: 'null'

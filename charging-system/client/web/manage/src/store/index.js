@@ -27,6 +27,11 @@ const getters = {
         console.log('store -> getters -> takeWallet -> ' + result);
         return JSON.parse(result);
     },
+    takeWater: (state) => {
+        let result = state.water == null ? localStorage.getItem('water') : state.water;
+        console.log('store -> getters -> takeWater -> ' + result);
+        return JSON.parse(result);
+    },
     takeUser: (state) => {
         let result = state.user == null ? localStorage.getItem('user') : state.user;
         console.log('store -> getters -> takeUser -> ' + result);
@@ -61,6 +66,12 @@ const mutations = {
         console.log('store -> mutations -> updateWallet -> ' + value);
         state.wallet = value;
         window.localStorage.setItem('wallet', value);
+    },
+    updateWater(state, value) {
+        value = JSON.stringify(value);
+        console.log('store -> mutations -> updateWater -> ' + value);
+        state.water = value;
+        window.localStorage.setItem('water', value);
     },
     updateUser(state, value) {
         value = JSON.stringify(value);
